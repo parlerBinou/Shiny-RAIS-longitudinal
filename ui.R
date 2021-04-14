@@ -5,6 +5,7 @@ library(reshape2)
 library(shinyjs)
 library(shinythemes)
 library(shinydashboard)
+library(plyr)
 
 navbarPageWithButton <- function(..., button) {
   navbar <- navbarPage(...)
@@ -15,17 +16,6 @@ navbarPageWithButton <- function(..., button) {
 }
 
 ui <- bootstrapPage(
-  # To set the main plot size in response to the browser windows size,
-  # read in the current windows size.
-  tags$head(
-    tags$script(
-      '$(document).on("shiny:connected", function(e) {
-              Shiny.onInputChange("innerSize", Math.min(window.innerWidth * 0.65, window.innerHeight * 0.85));
-            });
-           $(window).resize(function(e) {
-              Shiny.onInputChange("innerSize", Math.min(window.innerWidth * 0.65, window.innerHeight * 0.85));
-            });
-        ')),
   
   shinyjs::useShinyjs(),
   
@@ -54,23 +44,21 @@ ui <- bootstrapPage(
                   ),
                  
                  fluidRow(
-                   column(offset = 1, width = 5, valueBoxOutput("ibox_Size",width = 8)),
-                   column(width  = 5,valueBoxOutput("ibox_durpgm",width = 8))
+                   column(offset = 1, width = 4, valueBoxOutput("ibox_Size",width = 12)),
+                   column(width  = 4,valueBoxOutput("ibox_ageReg",width = 12)),
+                   column( width = 3,valueBoxOutput("ibox_timeCert",width = 12))
+                   
                  ),
+                 
                  
                  fluidRow(
-                   column(offset = 1, width = 5,valueBoxOutput("ibox_ageReg",width = 8)),
-                   column(width  = 5,valueBoxOutput("ibox_ageCert",width = 8))
-                 ),
-                 
-                 fluidRow(
-                   column(offset = 1, width = 5,valueBoxOutput("ibox_timeCert",width = 8)),
-                   column(width  = 5,valueBoxOutput("ibox_timeDisc",width = 8))
+                   column(offset = 1,width  = 4,valueBoxOutput("ibox_durpgm",width = 12)),
+                   column(width = 4,valueBoxOutput("ibox_ageCert",width = 12)),
+                   column(width  = 3,valueBoxOutput("ibox_timeDisc",width = 12))
                  ),
                  
                  br(),
-                 br(),
-                 br(),
+
                  
                  fluidRow(
                    column(width = 12, plotlyOutput("outBarChart"))
@@ -83,28 +71,5 @@ ui <- bootstrapPage(
     
     ) # navbar page
 ) # bootstrap page
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
