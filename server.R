@@ -1,18 +1,25 @@
-
+dictionary_content <- read.csv('translation_fr.csv',encoding = "latin1")
+translation <- dlply(dictionary_content ,.(key), function(s) key = as.list(s))
 
 server <- function(input, output, session) {
   
 # Translation -------------------------------------------------------------
-  dictionary <- read.csv("translation_fr.csv",encoding = "latin1")
+#  dictionary <- read.csv("translation_fr.csv",encoding = "latin1")
   
   reactive_vars <- reactiveValues()
   reactive_vars$language <- "en"
   
+  # Translate text given current language
+  tr <- function(text){ 
+    ls <-lapply(text,function(s) translation[[s]][[reactive_vars$language]])
+    return(ls[[1]])
+  }
+  
+  # Change button label when click
   output$label_language <- renderText({
     reactive_vars$language
   })
   
-  # Change button label when click
   observeEvent(input$btn_language, {
     if (reactive_vars$language == "en") {
       reactive_vars$language <- "fr"
@@ -21,17 +28,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # the dictionary reacts to the selected language
-  selected_dict <- reactive({
-    dict <- dictionary %>%
-      pull(reactive_vars$language)
-    dict
-  })
-  
-  # general title
-#  output$generalTitle <- renderText({
-#    selected_dict()[1]
-#  })
 
 # Pathway tab -------------------------------------------------------------
   #  Data processing-------------------------------------------------------
@@ -40,28 +36,51 @@ server <- function(input, output, session) {
   dims <- c("dim_geo", "dim_sex", "dim_trad", "dim_inds")
   full <- readr::read_csv(url) %>%
     separate(col=COORDINATE, into=dims) %>%
-    as.data.frame() 
-    
-  full <-merge(full,dictionary,by.x ="GEO",by.y = "en" ) %>% 
-    merge(dictionary,by.x ="Selected trades",by.y = "en" ) %>%
-    rename_at(c("Pathway indicators","GEO","Selected trades","fr.x","fr.y"),
-              ~ c("Pathway_inds","GEO_en","trades_en","GEO_fr","trades_fr")) 
+    as.data.frame() %>%
+    rename_at(c("Pathway indicators","Selected trades"),
+              ~ c("Pathway_inds","trades"))
   
   full[, dims] <- sapply(full[, dims], as.numeric)
+  
+  #  Update language of variables in dataset
+  
+  reactive_full_data <- reactive({
+    req(full, dictionary_content, reactive_vars$language)
+    
+    geo_tr <- dictionary_content %>% filter(key == 'geo_mem')
+    trade_tr <- dictionary_content %>% filter(key == 'trade_mem')
+    
+    if (reactive_vars$language == 'en') {
+      full <- full %>%
+         mutate(
+           GEO = mapvalues(GEO, geo_tr$fr, geo_tr$en, warn_missing = FALSE),
+           trades = mapvalues(trades, trade_tr$fr, trade_tr$en, warn_missing = FALSE)
+         )
+     }
+     else if (reactive_vars$language == 'fr') {
+       full <- full %>%
+         mutate(
+           GEO = mapvalues(GEO, geo_tr$en, geo_tr$fr, warn_missing = FALSE),
+           trades = mapvalues(trades, trade_tr$en, trade_tr$fr, warn_missing = FALSE)
+         )
+     }
+     return (full)
+   })
+  
  
   # extract geo and trade from dict to maintain order
   referenceGeo <- reactive({ 
     req(reactive_vars$language)
-    referenceGeo <- dictionary %>%
-      slice(7:19) %>%
+    referenceGeo <- dictionary_content %>%
+      slice(6:18) %>% # Geo_mem rows
       pull(reactive_vars$language) %>%
       rev.default() 
   })
   
   referenceTrade <-reactive({ 
     req(reactive_vars$language)
-    referenceTrade <-dictionary %>%
-      slice(23:59) %>%
+    referenceTrade <-dictionary_content %>%
+      slice(22:58) %>% # trades_mem rows
       pull(reactive_vars$language) %>%
       rev.default()
   })  
@@ -70,7 +89,7 @@ server <- function(input, output, session) {
   
   # pathway tab title
   output$pathwayTab <- renderText({
-    selected_dict()[81]
+    paste(tr("pathway_tab"))
   })
   
   # the most recent year (cohort) is used to define the range of
@@ -84,7 +103,7 @@ server <- function(input, output, session) {
   output$year_control <- renderUI({
     selectizeInput(
       inputId = "year",
-      label = selected_dict()[2],
+      label = tr("year"),
       choices = c(last_year:2008),
       selected = last_year-6
     )
@@ -94,8 +113,8 @@ server <- function(input, output, session) {
   output$gender_control <- renderUI({
     selectInput(
       inputId = "Sex",
-      label = selected_dict()[4],
-      choices = setNames(1:3, selected_dict()[20:22]),
+      label = tr("sex_dim"),
+      choices = setNames(1:3, tr("sex_mem")),
       selected = 1
     )
   })
@@ -104,8 +123,8 @@ server <- function(input, output, session) {
   output$times_control <- renderUI({
     selectInput(
       inputId = "times",
-      label = selected_dict()[82],
-      choices = setNames(c(4,10,16), selected_dict()[83:85]),
+      label = tr("times_dim"),
+      choices = setNames(c(4,10,16), tr("times_mem")),
       selected = 4
     )
   })
@@ -116,17 +135,17 @@ server <- function(input, output, session) {
     if(input$direc == "1" ){
       selectInput(
         inputId = "trade",
-        label = selected_dict()[5],
-        choices = setNames(1:37, selected_dict()[23:59]),
+        label = tr("trade_dim"),
+        choices = setNames(1:37, tr("trade_mem")),
         selected = 1
       ) 
     } else {
       selectInput(
         inputId = "tradeList",
-        label = selected_dict()[5],
-        choices = setNames(1:37, selected_dict()[23:59]),
+        label = tr("trade_dim"),
+        choices = setNames(1:37, tr("trade_mem")),
         multiple = TRUE,
-        selected = c(1,2,3,29,30,37)
+        selected = c(1,2,3,29,30,36,37)
       )
     }
   })
@@ -136,8 +155,8 @@ server <- function(input, output, session) {
     req(input$direc == "2" )
     selectInput(
       inputId = "geo",
-      label = selected_dict()[3],
-      choices = setNames(1:13, selected_dict()[7:19]),
+      label = tr("geo_dim"),
+      choices = setNames(1:13, tr("geo_mem")),
       selected = 1
     )
   })
@@ -146,8 +165,8 @@ server <- function(input, output, session) {
   output$direc_control <- renderUI({
     radioButtons(
       inputId = "direc",
-      label = selected_dict()[86],
-      choices = setNames(1:2,selected_dict()[87:88] ),
+      label = tr("comp_dim"),
+      choices = setNames(1:2, tr("comp_mem") ),
       selected = 1
     )
   })
@@ -156,17 +175,7 @@ server <- function(input, output, session) {
   
   output$outBarChart<- renderPlotly({
     
-    req(reactive_vars$language)
-
-    # let raw data react to selected language
-    if(reactive_vars$language == "en"){
-      full <- full %>%
-        rename_at(c("GEO_en","trades_en"),~c("GEO","trades"))
-      
-    } else{
-      full <- full %>%
-        rename_at(c("GEO_fr","trades_fr"),~c("GEO","trades"))
-    }
+    full <- reactive_full_data()
     
     req(input$direc)
     if (input$direc == "1"){
@@ -184,24 +193,29 @@ server <- function(input, output, session) {
       df <- df[order(factor(df$GEO, levels = referenceGeo())),]
       
       # check if there are data points left after the filtering.
-      validate(need(all(is.na(select(df,-1))) == FALSE, message = selected_dict()[89]))
+      validate(need(all(is.na(select(df,-1))) == FALSE, message = tr("mesg_val") ))
       
-      fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h', name = selected_dict()[95],
-                     marker = list(color = 'rgb(11,83,148)'))
+      df[is.na(df)] <- 0
       
-      fig <- fig %>% add_trace(x = df[[3]], name = selected_dict()[96],
-                               marker = list(color = 'rgb(61,133,198)'))
+      fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h', name = tr("rate_cert"),
+                     marker = list(color = '66c2a5'))
       
-      fig <- fig %>% add_trace(x = df[[4]], name = selected_dict()[97],
-                               marker = list(color = 'rgb(111,168,220)'))
+      fig <- fig %>% add_trace(x = df[[3]], name = tr("rate_cont"),
+                               marker = list(color = 'fc8d62'))
+      
+      fig <- fig %>% add_trace(x = df[[4]], name = tr("rate_disc"),
+                               marker = list(color = '8da0cb'))
       
       fig <- fig %>% layout(barmode = 'stack',
                             paper_bgcolor='rgba(0,0,0,0)',
                             plot_bgcolor='rgba(0,0,0,0)',
                             xaxis = list(title = ""),
                             yaxis = list(categoryorder = "array",
-                                         categoryarray = df$GEO),
+                                         categoryarray = df$GEO,
+                                         range = c(0:12)),
+                            margin = list(pad = 15),
                             legend=list(
+                              traceorder = "normal",
                               orientation="h",
                               yanchor="button",
                               y=1.1,
@@ -226,16 +240,16 @@ server <- function(input, output, session) {
       df <- df[order(factor(df$trades, levels = referenceTrade() )),] 
       
       # check if there are data points left after the filtering.
-      validate(need(all(is.na(select(df,-1))) == FALSE, message = selected_dict()[89]))
+      validate(need(all(is.na(select(df,-1))) == FALSE, message = tr("mesg_val") ))
       
-      fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h', name = selected_dict()[95],
-                     marker = list(color = 'rgb(11,83,148)'))
+      fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h',name = tr("rate_cert"),
+                     marker = list(color = '66c2a5'))
       
-      fig <- fig %>% add_trace(x = df[[3]], name = selected_dict()[96],
-                               marker = list(color = 'rgb(61,133,198)'))
+      fig <- fig %>% add_trace(x = df[[3]], name = tr("rate_cont"),
+                               marker = list(color = 'fc8d62'))
       
-      fig <- fig %>% add_trace(x = df[[4]], name = selected_dict()[97],
-                               marker = list(color = 'rgb(111,168,220)'))
+      fig <- fig %>% add_trace(x = df[[4]], name = tr("rate_disc"),
+                               marker = list(color = '8da0cb'))
       
       fig <- fig %>% layout(barmode = 'stack',
                             paper_bgcolor='rgba(0,0,0,0)',
@@ -243,7 +257,9 @@ server <- function(input, output, session) {
                             xaxis = list(title = ""),
                             yaxis = list(categoryorder = "array",
                                          categoryarray = df$trades),
+                            margin = list(pad = 15),
                             legend=list(
+                              traceorder = "normal",
                               orientation="h",
                               yanchor="button",
                               y=1.1,
@@ -262,18 +278,18 @@ server <- function(input, output, session) {
     
     if (input$direc == "1"){
       if (is.null(clk)) {
-        geoselect = selected_dict()[7] #Canada
-      } else if (clk$y %in% referenceTrade()){#if user switch "compare by", then reset 
-        geoselect = selected_dict()[7] #Canada
+        geoselect = tr("canada_lbl") 
+      } else if (clk$y %in% referenceTrade()){  #if user switch "compare by", then reset 
+        geoselect = tr("canada_lbl")
       } else {
         geoselect = clk$y
       }
       
     } else {
       if (is.null(clk)) {
-        trade_select = selected_dict()[23]#All trades
-      } else if (clk$y %in% referenceGeo()){ #if user switch "compare by", then reset 
-        trade_select = selected_dict()[23]#All trades 
+        trade_select = tr("all_trades_lbl")
+      } else if (clk$y %in% referenceGeo()){   #if user switch "compare by", then reset 
+        trade_select = tr("all_trades_lbl")
       } else {
         trade_select = clk$y
       }
@@ -286,11 +302,11 @@ server <- function(input, output, session) {
     if (input$direc == "1"){
       valueBox(
         value = tags$p(clicl_select(), style = "font-size: 150%"), 
-        selected_dict()[93])
+        tr("region_txt") )
     } else {
       valueBox(
         value = tags$p(clicl_select(), style = "font-size: 150%"), 
-        selected_dict()[94])
+        tr("trade_txt") )
     }
     
   })
@@ -301,14 +317,8 @@ server <- function(input, output, session) {
   # reactive to "click"
   
   dfFilter <- reactive({
-    req(reactive_vars$language)
-    if(reactive_vars$language == "en"){
-      full2 <- full %>%
-         rename_at(c("GEO_en","trades_en"),~c("GEO","trades"))
-    } else{
-      full2 <- full %>%
-        rename_at(c("GEO_fr","trades_fr"),~c("GEO","trades"))
-    }
+    
+    full2 <- reactive_full_data()
     
     req(input$direc)
     if (input$direc == "1"){
@@ -343,42 +353,42 @@ server <- function(input, output, session) {
         formatC(format="f", big.mark = " ", digits=0)      
     }
     valueBox(
-      df2$VALUE[df2$dim_inds == 1], selected_dict()[60])
+      df2$VALUE[df2$dim_inds == 1], tr("coh_size_lbl"))
   })
   
   # value box for program duration 
   output$ibox_durpgm <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == 2], selected_dict()[61])
+      df2$VALUE[df2$dim_inds == 2], tr("dur_lbl"))
   })
   
   # value box for median age at reg
   output$ibox_ageReg <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == 3], selected_dict()[62])
+      df2$VALUE[df2$dim_inds == 3], tr("age_reg"))
   })
   
   # value box for median age at certification
   output$ibox_ageCert <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) +5], selected_dict()[90])
+      df2$VALUE[df2$dim_inds == as.numeric(input$times) +5], tr("age_cert"))
   })
   
   # value box for median time to certification
   output$ibox_timeCert <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 3], selected_dict()[91])
+      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 3], tr("time_cert"))
   })
   
   # value box for median time to discontinuation
   output$ibox_timeDisc <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 4], selected_dict()[92])
+      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 4], tr("time_disct"))
   })
   
 } #server func
