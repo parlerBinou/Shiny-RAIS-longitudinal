@@ -1,0 +1,81 @@
+key,en,fr
+title,Canadian Apprenticeship Longitudinal Indicators,Indicateurs longitudinaux des apprentis canadiens
+year,Reference period,Période de référence
+geo_dim,Geography,Géographie
+sex_dim,Sex,Sexe
+trade_dim,Selected trades,Métiers sélectionnés
+geo_mem,Canada,Canada
+geo_mem,Atlantic Region,Région de l'Atlantique
+geo_mem,Newfoundland and Labrador,Terre-Neuve-et-Labrador
+geo_mem,Prince Edward Island,Île-du-Prince-Édouard
+geo_mem,Nova Scotia,Nouvelle-Écosse
+geo_mem,New Brunswick,Nouveau-Brunswick
+geo_mem,Quebec,Québec
+geo_mem,Ontario,Ontario
+geo_mem,Manitoba,Manitoba
+geo_mem,Saskatchewan,Saskatchewan
+geo_mem,Alberta,Alberta
+geo_mem,British Columbia,Colombie-Britannique
+geo_mem,Territories,Territoires
+sex_mem,Both sexes,Les deux sexes
+sex_mem,Males,Hommes
+sex_mem,Females,Femmes
+trade_mem,All trades,Tous les métiers
+trade_mem,All Red Seal trades,Tous les métiers Sceau Rouge
+trade_mem,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
+trade_mem,Agricultural equipment technician [7312],Mécanicien/mécanicienne de machinerie agricole [7312]
+trade_mem,Automotive service technician [7321],Mécanicien/mécanicienne de véhicules automobiles [7321]
+trade_mem,Bricklayer [7281],Briqueteur-maçon/briqueteuse-maçonne [7281]
+trade_mem,Carpenter [7271],Charpentier/charpentière [7271]
+trade_mem,Construction electrician [7241],Électricien/électricienne (construction) [7241]
+trade_mem,Cook [6322],Cuisinier/cuisinière [6322]
+trade_mem,Crane operator [7371],Grutiers/grutières [7371]
+trade_mem,Hairstylists and barbers [6341],Coiffeurs/coiffeuses et barbiers/barbières [6341]
+trade_mem,Heavy duty equipment technician [7312],Mécanicien/mécanicienne d'équipement lourd [7312]
+trade_mem,Industrial electrician [7242],Électricien industriel/électricienne industrielle [7242]
+trade_mem,Industrial instrumentation and control technician [2243],Technicien/technicienne en instrumentation industrielle et contrôle [2243]
+trade_mem,Industrial mechanic (millwright) [7311],Mécanicien industriel/mécanicienne industrielle (de chantier) [7311]
+trade_mem,Ironworker [7236],Monteur/monteuse de charpente d'acier [7236]
+trade_mem,Landscape horticulturist [2225],Horticulteur-paysagiste/horticultrice-paysagiste [2225]
+trade_mem,Machinist [7231],Machiniste [7231]
+trade_mem,Motor vehicle body repairer [7322],Débosseleur-peintre/débosseleuse-peintre [7322]
+trade_mem,Painter and decorator [7294],Peintre et décorateur/décoratrice [7294]
+trade_mem,Plumber [7251],Plombier/plombière [7251]
+trade_mem,Powerline technician [7244],Monteur/monteuse de lignes sous tension [7244]
+trade_mem,Refrigeration and air conditioning mechanic [7313],Mécanicien/mécanicienne en réfrigération et d'air climatisé [7313]
+trade_mem,Roofer [7291],Couvreur/couvreuse [7291]
+trade_mem,Sheet metal worker [7233],Ferblantier/ferblantière [7233]
+trade_mem,Steamfitter - pipefitter [7252],Monteur/monteuse d'appareils de chauffage [7252]
+trade_mem,Truck and transport mechanic [7321],Mécanicien/mécanicienne de camions et transport [7321]
+trade_mem,Welder [7237],Soudeur/soudeuse [7237]
+trade_mem,Other Red Seal trades,Autres métiers Sceau Rouge
+trade_mem,All non-Red Seal trades,Tous les métiers non-Sceau rouge
+trade_mem,Child and youth worker [4212],Assistant social/assistante sociale auprès des jeunes [4212]
+trade_mem,Developmental services worker [4212],Travailleur/travailleuse de services de développement [4212]
+trade_mem,Early childhood educator [4214],Éducateur/éducatrice de la petite enfance [4214]
+trade_mem,Educational assistant [4214],Aide-enseignant/aide-enseignante [4214]
+trade_mem,Esthetician [6562],Esthéticien/esthéticienne [6562]
+trade_mem,Selected non-Red Seal trades,Métiers non-Sceau Rouge sélectionnés
+trade_mem,Other non-Red Seal trades,Autres métiers non-Sceau Rouge
+coh_size_lbl,Cohort size,Taille de la cohorte
+dur_lbl,Most common program duration,Durée du programme plus souvent
+age_reg,Median age at registration,Âge médian au moment de l'inscription
+pathway_tab,Pathway,Parcours
+times_dim,Time range,Plage de temps
+times_mem,Within program duration,Au cours de la durée du programme
+times_mem,Within 1.5 times program duration,Au cours d'une période équivalente à 1.5 fois la durée du programme)
+times_mem,Within 2 times program duration,Au cours d'une période équivalente à 2 fois la durée du programme
+comp_dim,Compare by,Comparer par
+comp_mem,Geography,Géographie
+comp_mem,Trade,Métiers
+mesg_val,No data available,Aucune donnée disponible
+age_cert,Median age at certification,Âge médian lors de l'obtention du certificat
+time_cert,Median time to certification,Délai médian d'obtention de la certification 
+time_disct,Median time to discontinuation,Délai médian d'abandon
+region_txt,Selected region,Région sélectionnée
+trade_txt,Selected trade,Métiers sélectionnés
+rate_cert,Certification,Certification
+rate_cont,Continuation,Persévérance
+rate_disc,Discontinuation,Abandon
+canada_lbl,Canada,Canada
+all_trades_lbl,All trades,Tous les métiers
