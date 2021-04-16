@@ -6,6 +6,7 @@ library(shinyjs)
 library(shinythemes)
 library(shinydashboard)
 library(plyr)
+library(shinyWidgets)
 
 navbarPageWithButton <- function(..., button) {
   navbar <- navbarPage(...)
