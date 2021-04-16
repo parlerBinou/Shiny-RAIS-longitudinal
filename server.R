@@ -1,13 +1,21 @@
 dictionary_content <- read.csv('translation_fr.csv',encoding = "latin1")
 translation <- dlply(dictionary_content ,.(key), function(s) key = as.list(s))
 
+# extract list of trades and geos to map values in the dataset
+refGeoEn <- dictionary_content %>%
+  slice(6:18) %>% # Geo_mem rows
+  pull("en") 
+
+refTradesEn <- dictionary_content %>%
+  slice(22:58) %>% # trades_mem rows
+  pull("en") 
+
 server <- function(input, output, session) {
   
 # Translation -------------------------------------------------------------
-#  dictionary <- read.csv("translation_fr.csv",encoding = "latin1")
-  
+
   reactive_vars <- reactiveValues()
-  reactive_vars$language <- "en"
+  reactive_vars$language <- "fr"
   
   # Translate text given current language
   tr <- function(text){ 
@@ -37,37 +45,13 @@ server <- function(input, output, session) {
   full <- readr::read_csv(url) %>%
     separate(col=COORDINATE, into=dims) %>%
     as.data.frame() %>%
-    rename_at(c("Pathway indicators","Selected trades"),
-              ~ c("Pathway_inds","trades"))
+    rename_at(c("Pathway indicators","Selected trades"), ~ c("Pathway_inds","trades"))%>%
+    within(STATUS[STATUS == ".." | is.na(STATUS) ] <- " ") %>%
+    within(SYMBOL[is.na(SYMBOL)] <- " ") %>%
+    mutate(flag = paste(STATUS,SYMBOL))
   
   full[, dims] <- sapply(full[, dims], as.numeric)
   
-  #  Update language of variables in dataset
-  
-  reactive_full_data <- reactive({
-    req(full, dictionary_content, reactive_vars$language)
-    
-    geo_tr <- dictionary_content %>% filter(key == 'geo_mem')
-    trade_tr <- dictionary_content %>% filter(key == 'trade_mem')
-    
-    if (reactive_vars$language == 'en') {
-      full <- full %>%
-         mutate(
-           GEO = mapvalues(GEO, geo_tr$fr, geo_tr$en, warn_missing = FALSE),
-           trades = mapvalues(trades, trade_tr$fr, trade_tr$en, warn_missing = FALSE)
-         )
-     }
-     else if (reactive_vars$language == 'fr') {
-       full <- full %>%
-         mutate(
-           GEO = mapvalues(GEO, geo_tr$en, geo_tr$fr, warn_missing = FALSE),
-           trades = mapvalues(trades, trade_tr$en, trade_tr$fr, warn_missing = FALSE)
-         )
-     }
-     return (full)
-   })
-  
- 
   # extract geo and trade from dict to maintain order
   referenceGeo <- reactive({ 
     req(reactive_vars$language)
@@ -84,6 +68,8 @@ server <- function(input, output, session) {
       pull(reactive_vars$language) %>%
       rev.default()
   })  
+  
+  
   
   # bulding sider bar widgets --------------------------------------------- 
   
@@ -131,24 +117,61 @@ server <- function(input, output, session) {
   
   # dropdown to select trade/trade list
   output$trade_control <- renderUI({
-    req(input$direc)
-    if(input$direc == "1" ){
-      selectInput(
-        inputId = "trade",
-        label = tr("trade_dim"),
-        choices = setNames(1:37, tr("trade_mem")),
-        selected = 1
-      ) 
-    } else {
-      selectInput(
-        inputId = "tradeList",
-        label = tr("trade_dim"),
-        choices = setNames(1:37, tr("trade_mem")),
-        multiple = TRUE,
-        selected = c(1,2,3,29,30,36,37)
-      )
+    req(input$direc,reactive_vars$language)
+    if (reactive_vars$language == "en"){
+      if(input$direc == "1" ){
+        pickerInput(
+          inputId = "trade",
+          label = tr("trade_dim"),
+          choices = list(
+            "Trade group" = tr("trade_grp_mem"),
+            "Selected Red Seal trades"  = tr("rs_trade_mem"),
+            "Selected non-Red Seal trades"= tr("nrs_trade_mem")
+          ),
+          selected = tr("all_trades_lbl")
+        ) 
+      } else {
+        pickerInput(
+          inputId = "tradeList",
+          label = tr("trade_dim"),
+          choices = list(
+            "Trade group" = tr("trade_grp_mem"),
+            "Selected Red Seal trades"  = tr("rs_trade_mem"),
+            "Selected non-Red Seal trades"= tr("nrs_trade_mem")
+          ),
+          multiple = TRUE,
+          selected = tr("trade_grp_mem")
+        )
+      }
+    } else{
+      if(input$direc == "1" ){
+        pickerInput(
+          inputId = "trade",
+          label = tr("trade_dim"),
+          choices = list(
+            "Groupe des métiers" = tr("trade_grp_mem"),
+            "Métiers Sceau Rouge sélectionnés"  = tr("rs_trade_mem"),
+            "Métiers non-Sceau Rouge sélectionnés"= tr("nrs_trade_mem")
+          ),
+          selected = tr("all_trades_lbl")
+        ) 
+      } else {
+        pickerInput(
+          inputId = "tradeList",
+          label = tr("trade_dim"),
+          choices = list(
+            "Groupe des métiers" = tr("trade_grp_mem"),
+            "Métiers Sceau Rouge sélectionnés"  = tr("rs_trade_mem"),
+            "Métiers non-Sceau Rouge sélectionnés"= tr("nrs_trade_mem")
+          ),
+          multiple = TRUE,
+          selected = tr("trade_grp_mem")
+        )
+      }
     }
   })
+  
+  
   
   # dropdown menu for "Geography"
   output$geo_control <- renderUI({
@@ -175,36 +198,59 @@ server <- function(input, output, session) {
   
   output$outBarChart<- renderPlotly({
     
-    full <- reactive_full_data()
+    req(input$direc,full)
     
-    req(input$direc)
     if (input$direc == "1"){
-      req(input$year,input$Sex,input$trade,input$times)
+      req(input$year,input$Sex,input$trade,input$times,refTradesEn,reactive_vars$language)
       df <- full %>%
         subset(
-        REF_DATE  ==  input$year &
-        dim_sex   ==  input$Sex &
-        dim_trad  ==  input$trade &
-        dim_inds %in% c(input$times,as.numeric(input$times) +1,as.numeric(input$times) +2),
-        select   =  c(GEO,Pathway_inds,VALUE)) %>%
+          REF_DATE  ==  input$year &
+          dim_sex   ==  input$Sex &
+          trades   %in% mapvalues(input$trade,tr("trade_mem"),refTradesEn,warn_missing = FALSE) &
+          dim_inds %in% c(input$times,as.numeric(input$times) +1,as.numeric(input$times) +2)
+        )
+      
+      dfFlag <- df%>%
+        subset(select = c(GEO,Pathway_inds,flag))
+          
+      df <- df %>%
+        subset(select = c(GEO,Pathway_inds,VALUE)) %>%
+        mutate(VALUE = VALUE/100) %>%
         recast(GEO ~ Pathway_inds, id.var = c("GEO", "Pathway_inds"))
+      
+      # update language of geo label in dataset
+      df[[1]] <- mapvalues(df[[1]],refGeoEn,tr("geo_mem"),warn_missing = FALSE)
+      dfFlag$GEO <- mapvalues(dfFlag$GEO,refGeoEn,tr("geo_mem"),warn_missing = FALSE)
       
       # to keep the order of geography
       df <- df[order(factor(df$GEO, levels = referenceGeo())),]
+      dfFlag <- dfFlag[order(factor(dfFlag$GEO, levels = referenceGeo())),]
+      
       
       # check if there are data points left after the filtering.
       validate(need(all(is.na(select(df,-1))) == FALSE, message = tr("mesg_val") ))
       
       df[is.na(df)] <- 0
       
-      fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h', name = tr("rate_cert"),
-                     marker = list(color = '66c2a5'))
+      print(dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[2]])
+      
+      fig <- plot_ly( x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h', name = tr("rate_cert"),
+                     marker = list(color = '66c2a5'),
+                     text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[2]],
+                     hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                     )
       
       fig <- fig %>% add_trace(x = df[[3]], name = tr("rate_cont"),
-                               marker = list(color = 'fc8d62'))
+                               marker = list(color = 'fc8d62'),
+                               text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[3]],
+                               hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                               )
       
       fig <- fig %>% add_trace(x = df[[4]], name = tr("rate_disc"),
-                               marker = list(color = '8da0cb'))
+                               marker = list(color = '8da0cb'),
+                               text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[4]],
+                               hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                               )
       
       fig <- fig %>% layout(barmode = 'stack',
                             paper_bgcolor='rgba(0,0,0,0)',
@@ -231,25 +277,49 @@ server <- function(input, output, session) {
           REF_DATE  ==    input$year &
           dim_sex   ==    input$Sex &
           dim_geo   ==    input$geo &
-          dim_trad  %in%  input$tradeList &
-          dim_inds  %in%  c(input$times,as.numeric(input$times) +1,as.numeric(input$times) +2),
-          select   =  c(trades,Pathway_inds,VALUE)) %>%
-        recast(trades ~ Pathway_inds, id.var = c("trades", "Pathway_inds"))
+          trades   %in%   mapvalues(input$tradeList,tr("trade_mem"),refTradesEn,warn_missing = FALSE) &
+          dim_inds %in%   c(input$times,as.numeric(input$times) +1,as.numeric(input$times) +2)
+        )
+          
+      dfFlag <- df%>%
+        subset(select = c(trades,Pathway_inds,flag))    
+          
+      df <- df %>%
+        subset(select = c(trades,Pathway_inds,VALUE)) %>%
+        mutate(VALUE  = VALUE/100) %>%
+        recast(trades ~ Pathway_inds, id.var = c("trades", "Pathway_inds")) 
+
+      
+      # update language of trade label in dataset
+      df[[1]] <- mapvalues(df[[1]],refTradesEn,tr("trade_mem"),warn_missing = FALSE)
+      dfFlag$trades <- mapvalues(dfFlag$trades,refTradesEn,tr("trade_mem"),warn_missing = FALSE)
       
       # to keep the order of trade
       df <- df[order(factor(df$trades, levels = referenceTrade() )),] 
+      dfFlag <- dfFlag[order(factor(dfFlag$trades, levels = referenceTrade())),]
       
       # check if there are data points left after the filtering.
       validate(need(all(is.na(select(df,-1))) == FALSE, message = tr("mesg_val") ))
       
+      df[is.na(df)] <- 0
+      
       fig <- plot_ly(df, x = df[[2]], y = df[[1]], type = 'bar', orientation = 'h',name = tr("rate_cert"),
-                     marker = list(color = '66c2a5'))
+                     marker = list(color = '66c2a5'),
+                     text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[2]],
+                     hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                     )
       
       fig <- fig %>% add_trace(x = df[[3]], name = tr("rate_cont"),
-                               marker = list(color = 'fc8d62'))
+                               marker = list(color = 'fc8d62'),
+                               text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[3]],
+                               hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                               )
       
       fig <- fig %>% add_trace(x = df[[4]], name = tr("rate_disc"),
-                               marker = list(color = '8da0cb'))
+                               marker = list(color = '8da0cb'),
+                               text = dfFlag$flag[dfFlag$Pathway_inds == colnames(df)[2]],
+                               hovertemplate = paste("%{y}","%{x:%}", "<b>%{text}</b>")
+                               )
       
       fig <- fig %>% layout(barmode = 'stack',
                             paper_bgcolor='rgba(0,0,0,0)',
@@ -318,25 +388,32 @@ server <- function(input, output, session) {
   
   dfFilter <- reactive({
     
-    full2 <- reactive_full_data()
-    
     req(input$direc)
     if (input$direc == "1"){
-      df <- full2 %>%
+      
+      df <- full %>%
         subset(
-          REF_DATE  ==  input$year &
-          GEO    ==  clicl_select() &
-          dim_sex   ==  input$Sex &
-          dim_trad  ==  input$trade,
-          select    =   c(dim_inds,Pathway_inds,VALUE))
+          REF_DATE   ==    input$year &
+          dim_sex    ==    input$Sex &
+          trades    %in%   mapvalues(input$trade,tr("trade_mem"),refTradesEn,warn_missing = FALSE) )
+      df$GEO = mapvalues(df$GEO,refGeoEn,tr("geo_mem"),warn_missing = FALSE)
+      df <- df%>%
+        subset(
+          GEO    ==  clicl_select() ,
+          select =   c(dim_inds,Pathway_inds,VALUE,SYMBOL))
+      
     } else {
-      df <- full2 %>%
+      df <- full %>%
         subset(
           REF_DATE  ==  input$year &
           dim_geo   ==  input$geo &
-          dim_sex   ==  input$Sex &
+          dim_sex   ==  input$Sex )
+      df$trades = mapvalues(df$trades,refTradesEn,tr("trade_mem"),warn_missing = FALSE)
+      df <- df %>%
+        subset(
           trades    ==  clicl_select(),
-          select    =   c(dim_inds,Pathway_inds,VALUE))
+          select    =   c(dim_inds,Pathway_inds,VALUE,SYMBOL)
+        )
     }
   })
   
@@ -374,21 +451,30 @@ server <- function(input, output, session) {
   output$ibox_ageCert <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) +5], tr("age_cert"))
+      paste(
+        df2$VALUE[df2$dim_inds == as.numeric(input$times) +5],
+        df2$SYMBOL[df2$dim_inds == as.numeric(input$times) +5]), 
+      tr("age_cert"))
   })
   
   # value box for median time to certification
   output$ibox_timeCert <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 3], tr("time_cert"))
+      paste(
+        df2$VALUE[df2$dim_inds == as.numeric(input$times) + 3], 
+        df2$SYMBOL[df2$dim_inds == as.numeric(input$times) +3]),       
+      tr("time_cert"))
   })
   
   # value box for median time to discontinuation
   output$ibox_timeDisc <- renderValueBox({
     df2 <- dfFilter()
     valueBox(
-      df2$VALUE[df2$dim_inds == as.numeric(input$times) + 4], tr("time_disct"))
+      paste(
+        df2$VALUE[df2$dim_inds == as.numeric(input$times) + 4], 
+        df2$SYMBOL[df2$dim_inds == as.numeric(input$times) +4]),       
+        tr("time_disct"))
   })
   
 } #server func
