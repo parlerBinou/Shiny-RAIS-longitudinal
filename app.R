@@ -7,7 +7,7 @@ library(tidyverse)
 library(shinydashboard)
 library(plyr)
 library(circlize)
-#library(Cairo)
+library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
