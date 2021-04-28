@@ -647,3 +647,17 @@ pathway_server <- function(id, language) {
     
   }) # module func
 }
+
+# for testing
+
+pathway_demo <- function() {
+  ui <- fluidPage(
+    pathway_ui("pathway"))
+  server <- function(input, output, session) {
+    pathway_server("pathway", "en")
+  }
+  shinyApp(ui, server)
+}
+
+
+# pathway_demo()
