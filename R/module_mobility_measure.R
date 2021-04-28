@@ -22,7 +22,7 @@ mob_measure_ui <- function(id) {
     
     mainPanel(
       fluidRow(
-        valueBoxOutput(NS(id, "vbox_prov"), width = 6),
+        valueBoxOutput(NS(id, "vbox_prov"), width = 8),
         valueBoxOutput(NS(id, "vbox_year"), width = 4)),
       fluidRow(
         valueBoxOutput(NS(id, "vbox_trade"), width = 12)),
@@ -49,6 +49,7 @@ mob_measure_server <- function(id, language) {
 
   moduleServer(id, function(input, output, session) {
     source("R/format_number.R")
+    source("R/valuebox.R")
     # load in the dictionary.
     dictionary <- read.csv('dictionary/dict_mobility_measures.csv',encoding = "utf-8")
     translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
@@ -264,6 +265,7 @@ mob_measure_server <- function(id, language) {
           x = df()$ind11, y = df()$supp, name = tr("net"), type = "bar",
           orientation = "h", marker = list(color = '66c2a5'),
           hovertemplate = "%{y}: %{x}%",
+          source = "mm",
           # when comparing across geography and Canada is selected, show
           # In and Out and hide Net - always zero.
           # otherwise, show Net only by default.
@@ -288,8 +290,7 @@ mob_measure_server <- function(id, language) {
             barmode = "group",
             legend=list(
               traceorder = "normal", orientation="h", yanchor="bottom",
-              y=1, xanchor="left", x=0),
-            separators = ' ,'
+              y=1, xanchor="left", x=0)
           ) 
       } else {
         # compare across cohorts (year of certification)
@@ -315,7 +316,7 @@ mob_measure_server <- function(id, language) {
 
         fig <- plot_ly(
           x = df()$supp, y = net_measure, name = tr("net"), type = "bar",
-          text = net_text, hovertemplate = hover_template,
+          text = net_text, hovertemplate = hover_template, source = "mm",
           marker = list(color = '66c2a5'),
           visible = ifelse(
             (input$geo == 1), "legendonly", TRUE)
@@ -348,7 +349,7 @@ mob_measure_server <- function(id, language) {
 
     
     get_clicked <- function() {
-      clk <- event_data("plotly_click")
+      clk <- event_data("plotly_click", source = "mm")
       if (is.null(clk)) {selected_supp(1)} else {
         if (input$comp == 3) { selected_supp(clk$x) } else { selected_supp(clk$y) }
       }
@@ -360,75 +361,84 @@ mob_measure_server <- function(id, language) {
     }
     
     # if click on plotly, read the selected index
-    observeEvent(event_data("plotly_click"), get_clicked())
+    observeEvent(event_data("plotly_click", source = "mm"), get_clicked())
     
     # if anything changes in df(), reset the selection
     observeEvent(df(), reset_selection())
     
     # render value boxes
     output$vbox_year <- renderValueBox({
-      valueBox(
-        df()$REF_DATE[df()$supp == selected_supp()], tr("lab_cert_year"))
+      my_valueBox(
+        df()$REF_DATE[df()$supp == selected_supp()], tr("lab_cert_year"),
+        icon = "calendar")
     })
     
     output$vbox_prov <- renderValueBox({
-      valueBox(
-        df()$label1[df()$supp == selected_supp()], tr("lab_geo"))
+      my_valueBox(
+        df()$label1[df()$supp == selected_supp()], tr("lab_geo"),
+        icon = "map-marker")
     })
     
     output$vbox_trade <- renderValueBox({
-      valueBox(
-        df()$label2[df()$supp == selected_supp()], tr("lab_trade"))
+      my_valueBox(
+        df()$label2[df()$supp == selected_supp()], tr("lab_trade"),
+        icon = "toolbox")
     })
     
     output$vbox_cohort <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind1[df()$supp == selected_supp()],
           in_bracket = df()$ind3[df()$supp == selected_supp()],
           in_bracket_percent = FALSE,
           locale = language),
-        paste0(tr("cohort"), " (", tr("taxfilers"), ")"))
+        paste0(tr("cohort"), " (", tr("taxfilers"), ")"),
+        icon = "users", size = "small")
     })
     
     
     output$vbox_medage <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind2[df()$supp == selected_supp()],
-          locale = language), tr("medage"))
+          locale = language), tr("medage"),
+          size = "small")
     })
     
     output$vbox_absence <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind4[df()$supp == selected_supp()],
           in_bracket = df()$ind5[df()$supp == selected_supp()],
-          locale = language), tr("absence"))
+          locale = language), tr("absence"),
+        icon = "house-user", size = "small")
     })
     
     output$vbox_net_measure <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind8[df()$supp == selected_supp()],
           in_bracket = df()$ind11[df()$supp == selected_supp()],
-          locale = language), tr("net"))
+          locale = language), tr("net"),
+          icon = "exchange-alt", size = "small")
     })
     
     output$vbox_in_measure <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind6[df()$supp == selected_supp()],
           in_bracket = df()$ind9[df()$supp == selected_supp()],
-          locale = language), tr("in"))
+          locale = language), tr("in"),
+          icon = "sign-in-alt", size = "small")
     })
     
     output$vbox_out_measure <- renderValueBox({
-      valueBox(
+      my_valueBox(
         format_number(
           df()$ind7[df()$supp == selected_supp()],
           in_bracket = df()$ind10[df()$supp == selected_supp()],
-          locale = language), tr("out"))
+          locale = language), tr("out"),
+          icon = "sign-out-alt", size = "small")
     })
     
   })
