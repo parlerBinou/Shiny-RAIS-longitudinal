@@ -233,7 +233,7 @@ mob_measure_server <- function(id, language) {
             dim_type == input$type) %>%
         arrange(dim_geo, dim_trade, desc(REF_DATE)) %>%
         mutate(
-          supp = c(1:nrow(.)),
+          supp = c(1:max(nrow(.), 1)),
           label1 = geo_names[dim_geo],
           label2 = trade_names[dim_trade],
           label3 = as.character(REF_DATE)
