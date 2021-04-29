@@ -50,27 +50,21 @@ mob_measure_server <- function(id, language) {
   moduleServer(id, function(input, output, session) {
     source("R/format_number.R")
     source("R/valuebox.R")
-    # load in the dictionary.
-    dictionary <- read.csv('dictionary/dict_mobility_measures.csv',encoding = "utf-8")
-    translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
+    source("R/translator.R")
     
-    tr <- function(text){ 
-      ls <-lapply(text,function(s) translation[[s]][[language]])
-      return(ls[[1]])
-    }
+    # load in the dictionary.
+    translator <- SimpleTranslator$new('dictionary/dict_mobility_measures.csv', language)
+    tr <- translator$tr
+    #dictionary <- setup_dictionary('dictionary/dict_mobility_measures.csv')
+    # 
+    # tr <- function(key) {
+    #   dictionary[[key]][[language]]
+    # }
     
     geo_names <- tr("mem_geo")
     grp = setNames(c(1:3,19,20), tr("mem_trade_grp"))
     rs = setNames(c(4:18), tr("mem_trade_rs"))
     trade_names <- c(grp, rs) %>% sort() %>% names()
-    
-    if (language == "en") {
-      k_delim <- ","
-      d_delim <- "."
-    } else {
-      k_delim <- " "
-      d_delim <- ","
-    }
     
     # load in the data file
     # full <- read_csv("~/gitrepos/Shiny-RAIS-longitudinal/data/mig_mat.csv") %>%
