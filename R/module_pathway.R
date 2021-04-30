@@ -20,10 +20,10 @@ pathway_ui <- function(id) {
         valueBoxOutput(NS(id, "vbox_trade"), width = 12)),
       fluidRow(
         valueBoxOutput(NS(id, "vbox_cohort"), width = 4),
-        valueBoxOutput(NS(id, "vbox_durpgm"), width = 4),
-        valueBoxOutput(NS(id, "vbox_age_reg"), width = 4)),
+        valueBoxOutput(NS(id, "vbox_age_reg"), width = 4),
+        valueBoxOutput(NS(id, "vbox_time_cert"), width = 4)),
       fluidRow(
-        valueBoxOutput(NS(id, "vbox_time_cert"), width = 4),
+        valueBoxOutput(NS(id, "vbox_durpgm"), width = 4),
         valueBoxOutput(NS(id, "vbox_age_cert"), width = 4),
         valueBoxOutput(NS(id, "vbox_time_disc"), width = 4)),
       
