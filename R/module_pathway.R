@@ -375,13 +375,13 @@ pathway_server <- function(id, language) {
     
     output$vbox_prov <- renderValueBox({
       my_valueBox(
-        df()$label1[df()$supp == selected_supp()], tr("lab_geo"),
+        df()$label2[df()$supp == selected_supp()], tr("lab_geo"),
         icon = "map-marker")
     })
     
     output$vbox_trade <- renderValueBox({
       my_valueBox(
-        df()$label2[df()$supp == selected_supp()], tr("lab_trade"),
+        df()$label1[df()$supp == selected_supp()], tr("lab_trade"),
         icon = "toolbox")
     })
     
