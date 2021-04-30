@@ -16,8 +16,8 @@ my_valueBox <- function(value, subtitle, icon=NULL, color=NULL, size="normal") {
   }
   
   div(class = "col-lg-3 col-md-6",
-      div(class = "panel panel-primary",
-          div(class = "panel-heading", 
+      div(class = "panel panel-primary", style = "margin-bottom:10px;",
+          div(class = "panel-heading", style = "padding: 5px 10px;",
               style = paste0("background-color:", color),
               div(class = "row",
                   div(class = "col-xs-12 text-left", style = "position: relative; left: 0; top: 0; z-index: 1;",
