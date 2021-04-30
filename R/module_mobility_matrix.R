@@ -29,13 +29,16 @@ mob_matrix_server <- function(id, language, innerSize) {
 
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
-    dictionary <- read.csv('dictionary/dict_mobility_matrix.csv',encoding = "utf-8")
-    translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
-    
-    tr <- function(text){ 
-      ls <-lapply(text,function(s) translation[[s]][[language]])
-      return(ls[[1]])
-    }
+    source("R/translator.R")
+    translator <- SimpleTranslator$new('dictionary/dict_pathway.csv', language)
+    tr <- translator$tr
+    # dictionary <- read.csv('dictionary/dict_mobility_matrix.csv',encoding = "utf-8")
+    # translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
+    # 
+    # tr <- function(text){ 
+    #   ls <-lapply(text,function(s) translation[[s]][[language]])
+    #   return(ls[[1]])
+    # }
     
     # load in the data file
     # full <- read_csv("~/gitrepos/Shiny-RAIS-longitudinal/data/mig_mat.csv") %>%

@@ -5,26 +5,29 @@ library(tidyverse)
 #library(shinyjs)
 #library(shinythemes)
 library(shinydashboard)
-library(plyr)
+#library(plyr)
 library(circlize)
-library(Cairo)
+#library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
-source("R/download_data.R")
 source("R/module_pathway.R")
 source("R/module_mobility_matrix.R")
 source("R/module_mobility_measure.R")
-
-dictionary <- read.csv('dictionary/dict_main.csv',encoding = "utf-8")
-translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
+source("R/translator.R")
 
 language <- "en"
+translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
+tr <- translator$tr
+# dictionary <- read.csv('dictionary/dict_main.csv',encoding = "utf-8")
+# translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
 
-tr <- function(text){ 
-  ls <-lapply(text,function(s) translation[[s]][[language]])
-  return(ls[[1]])
-}
+
+# 
+# tr <- function(text){ 
+#   ls <-lapply(text,function(s) translation[[s]][[language]])
+#   return(ls[[1]])
+# }
 
 ui <- bootstrapPage(
   

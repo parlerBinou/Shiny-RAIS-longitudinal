@@ -1,123 +1,79 @@
 key,en,fr
-title,Canadian Apprenticeship Longitudinal Indicators,Indicateurs longitudinaux des apprentis canadiens
-year,Reference period,Période de référence
-geo_dim,Geography,Géographie
-sex_dim,Sex,Sexe
-trade_dim,Selected trades,Métiers sélectionnés
-geo_mem,Canada,Canada
-geo_mem,Atlantic Region,Région de l'Atlantique
-geo_mem,Newfoundland and Labrador,Terre-Neuve-et-Labrador
-geo_mem,Prince Edward Island,Île-du-Prince-Édouard
-geo_mem,Nova Scotia,Nouvelle-Écosse
-geo_mem,New Brunswick,Nouveau-Brunswick
-geo_mem,Quebec,Québec
-geo_mem,Ontario,Ontario
-geo_mem,Manitoba,Manitoba
-geo_mem,Saskatchewan,Saskatchewan
-geo_mem,Alberta,Alberta
-geo_mem,British Columbia,Colombie-Britannique
-geo_mem,Territories,Territoires
+lab_geo,Geography,GÃ©ographie
+lab_year,Year of registration,AnnÃ©e de l'inscription
+lab_time,Time range,Plage de temps
+lab_trade,Trades,MÃ©tiers
+lab_trade_grp,Trade group,Groupe des mÃ©tiers
+lab_rs,Selected Red Seal trades,MÃ©tiers Sceau rouge sÃ©lectionnÃ©s
+lab_nrs,Selected non-Red Seal trades,MÃ©tiers non-Sceau rouge sÃ©lectionnÃ©s
+lab_sex,Sex,Sexe
+lab_comp,Compare by,Comparer par
+mem_geo,Canada,Canada
+mem_geo,Atlantic Region,RÃ©gion de l'Atlantique
+mem_geo,Newfoundland and Labrador,Terre-Neuve-et-Labrador
+mem_geo,Prince Edward Island,ÃŽle-du-Prince-Ã‰douard
+mem_geo,Nova Scotia,Nouvelle-Ã‰cosse
+mem_geo,New Brunswick,Nouveau-Brunswick
+mem_geo,Quebec,QuÃ©bec
+mem_geo,Ontario,Ontario
+mem_geo,Manitoba,Manitoba
+mem_geo,Saskatchewan,Saskatchewan
+mem_geo,Alberta,Alberta
+mem_geo,British Columbia,Colombie-Britannique
+mem_geo,Territories,Territoires
+mem_trade_grp,All trades,Tous les mÃ©tiers 
+mem_trade_grp,All Red Seal trades,Tous les mÃ©tiers Sceau Rouge
+mem_trade_grp,Selected Red Seal trades,MÃ©tiers Sceau Rouge sÃ©lectionnÃ©s
+mem_trade_rs,Agricultural equipment technician,MÃ©canicien/mÃ©canicienne de machinerie agricole
+mem_trade_rs,Automotive service technician,MÃ©canicien/mÃ©canicienne de vÃ©hicules automobiles
+mem_trade_rs,Bricklayer,Briqueteur-maÃ§on/briqueteuse-maÃ§onne
+mem_trade_rs,Carpenter,Charpentier/charpentiÃ¨re
+mem_trade_rs,Construction electrician,Ã‰lectricien/Ã©lectricienne (construction)
+mem_trade_rs,Cook,Cuisinier/cuisiniÃ¨re
+mem_trade_rs,Crane operator,Grutiers/grutiÃ¨res
+mem_trade_rs,Hairstylists and barbers,Coiffeurs/coiffeuses et barbiers/barbiÃ¨res
+mem_trade_rs,Heavy duty equipment technician,MÃ©canicien/mÃ©canicienne d'Ã©quipement lourd
+mem_trade_rs,Industrial electrician,Ã‰lectricien industriel/Ã©lectricienne industrielle
+mem_trade_rs,Industrial instrumentation and control technician,Technicien/technicienne en instrumentation industrielle et contrÃ´le
+mem_trade_rs,Industrial mechanic (millwright),MÃ©canicien industriel/mÃ©canicienne industrielle (de chantier)
+mem_trade_rs,Ironworker,Monteur/monteuse de charpente d'acier
+mem_trade_rs,Landscape horticulturist,Horticulteur-paysagiste/horticultrice-paysagiste
+mem_trade_rs,Machinist,Machiniste
+mem_trade_rs,Motor vehicle body repairer,DÃ©bosseleur-peintre/dÃ©bosseleuse-peintre
+mem_trade_rs,Painter and decorator,Peintre et dÃ©corateur/dÃ©coratrice 
+mem_trade_rs,Plumber,Plombier/plombiÃ¨re
+mem_trade_rs,Powerline technician,Monteur/monteuse de lignes sous tension
+mem_trade_rs,Refrigeration and air conditioning mechanic,MÃ©canicien/mÃ©canicienne en rÃ©frigÃ©ration et d'air climatisÃ©
+mem_trade_rs,Roofer,Couvreur/couvreuse
+mem_trade_rs,Sheet metal worker,Ferblantier/ferblantiÃ¨re
+mem_trade_rs,Steamfitter - pipefitter,Monteur/monteuse d'appareils de chauffage
+mem_trade_rs,Truck and transport mechanic,MÃ©canicien/mÃ©canicienne de camions et transport
+mem_trade_rs,Welder,Soudeur/soudeuse
+mem_trade_grp,Other Red Seal trades,Autres mÃ©tiers Sceau Rouge
+mem_trade_grp,All non-Red Seal trades,Tous les mÃ©tiers non-Sceau rouge
+mem_trade_nrs,Child and youth worker,Assistant social/assistante sociale auprÃ¨s des jeunes
+mem_trade_nrs,Developmental services worker,Travailleur/travailleuse de services de dÃ©veloppement
+mem_trade_nrs,Early childhood educator,Ã‰ducateur/Ã©ducatrice de la petite enfance
+mem_trade_nrs,Educational assistant,Aide-enseignant/aide-enseignante
+mem_trade_nrs,Esthetician,EsthÃ©ticien/esthÃ©ticienne
+mem_trade_grp,Selected non-Red Seal trades,MÃ©tiers non-Sceau Rouge sÃ©lectionnÃ©s
+mem_trade_grp,Other non-Red Seal trades,Autres mÃ©tiers non-Sceau Rouge
 sex_mem,Both sexes,Les deux sexes
 sex_mem,Males,Hommes
 sex_mem,Females,Femmes
-trade_mem,All trades,Tous les métiers
-trade_mem,All Red Seal trades,Tous les métiers Sceau Rouge
-trade_mem,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
-trade_mem,Agricultural equipment technician [7312],Mécanicien/mécanicienne de machinerie agricole [7312]
-trade_mem,Automotive service technician [7321],Mécanicien/mécanicienne de véhicules automobiles [7321]
-trade_mem,Bricklayer [7281],Briqueteur-maçon/briqueteuse-maçonne [7281]
-trade_mem,Carpenter [7271],Charpentier/charpentière [7271]
-trade_mem,Construction electrician [7241],Électricien/électricienne (construction) [7241]
-trade_mem,Cook [6322],Cuisinier/cuisinière [6322]
-trade_mem,Crane operator [7371],Grutiers/grutières [7371]
-trade_mem,Hairstylists and barbers [6341],Coiffeurs/coiffeuses et barbiers/barbières [6341]
-trade_mem,Heavy duty equipment technician [7312],Mécanicien/mécanicienne d'équipement lourd [7312]
-trade_mem,Industrial electrician [7242],Électricien industriel/électricienne industrielle [7242]
-trade_mem,Industrial instrumentation and control technician [2243],Technicien/technicienne en instrumentation industrielle et contrôle [2243]
-trade_mem,Industrial mechanic (millwright) [7311],Mécanicien industriel/mécanicienne industrielle (de chantier) [7311]
-trade_mem,Ironworker [7236],Monteur/monteuse de charpente d'acier [7236]
-trade_mem,Landscape horticulturist [2225],Horticulteur-paysagiste/horticultrice-paysagiste [2225]
-trade_mem,Machinist [7231],Machiniste [7231]
-trade_mem,Motor vehicle body repairer [7322],Débosseleur-peintre/débosseleuse-peintre [7322]
-trade_mem,Painter and decorator [7294],Peintre et décorateur/décoratrice [7294]
-trade_mem,Plumber [7251],Plombier/plombière [7251]
-trade_mem,Powerline technician [7244],Monteur/monteuse de lignes sous tension [7244]
-trade_mem,Refrigeration and air conditioning mechanic [7313],Mécanicien/mécanicienne en réfrigération et d'air climatisé [7313]
-trade_mem,Roofer [7291],Couvreur/couvreuse [7291]
-trade_mem,Sheet metal worker [7233],Ferblantier/ferblantière [7233]
-trade_mem,Steamfitter - pipefitter [7252],Monteur/monteuse d'appareils de chauffage [7252]
-trade_mem,Truck and transport mechanic [7321],Mécanicien/mécanicienne de camions et transport [7321]
-trade_mem,Welder [7237],Soudeur/soudeuse [7237]
-trade_mem,Other Red Seal trades,Autres métiers Sceau Rouge
-trade_mem,All non-Red Seal trades,Tous les métiers non-Sceau rouge
-trade_mem,Child and youth worker [4212],Assistant social/assistante sociale auprès des jeunes [4212]
-trade_mem,Developmental services worker [4212],Travailleur/travailleuse de services de développement [4212]
-trade_mem,Early childhood educator [4214],Éducateur/éducatrice de la petite enfance [4214]
-trade_mem,Educational assistant [4214],Aide-enseignant/aide-enseignante [4214]
-trade_mem,Esthetician [6562],Esthéticien/esthéticienne [6562]
-trade_mem,Selected non-Red Seal trades,Métiers non-Sceau Rouge sélectionnés
-trade_mem,Other non-Red Seal trades,Autres métiers non-Sceau Rouge
-coh_size_lbl,Cohort size,Taille de la cohorte
-dur_lbl,Program duration mode,Mode de durée du programme
-age_reg,Median age at registration,Âge médian au moment de l'inscription
-pathway_tab,Pathway,Parcours
-times_dim,Time range,Plage de temps
-times_mem,Within program duration,Au cours de la durée du programme
-times_mem,Within 1.5 times program duration,Au cours d'une période équivalente à 1.5 fois la durée du programme)
-times_mem,Within 2 times program duration,Au cours d'une période équivalente à 2 fois la durée du programme
-comp_dim,Compare by,Comparer par
-comp_mem,Reference period,Période de référence
-comp_mem,Geography,Géographie
-comp_mem,Trades,Métiers
-mesg_val,No data available,Aucune donnée disponible
-age_cert,Median age at certification,Âge médian lors de l'obtention du certificat
-time_cert,Median time to certification,Délai médian d'obtention de la certification 
-time_disct,Median time to discontinuation,Délai médian d'abandon
-region_txt,Selected region,Région sélectionnée
-trade_txt,Selected trades,Métiers sélectionnés
+cohort,Cohort size,Taille de la cohorte
+dur_pgm,Program duration,DurÃ©e du programme
+age_reg,Median age at registration,Ã‚ge mÃ©dian au moment de l'inscription
 rate_cert,Certification,Certification
-rate_cont,Continuation,Persévérance
+rate_cont,Continuation,PersÃ©vÃ©rance
 rate_disc,Discontinuation,Abandon
-canada_lbl,Canada,Canada
-all_trades_lbl,All trades,Tous les métiers
-trade_grp_mem,All trades,Tous les métiers
-trade_grp_mem,All Red Seal trades,Tous les métiers Sceau Rouge
-trade_grp_mem,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
-rs_trade_mem,Agricultural equipment technician [7312],Mécanicien/mécanicienne de machinerie agricole [7312]
-rs_trade_mem,Automotive service technician [7321],Mécanicien/mécanicienne de véhicules automobiles [7321]
-rs_trade_mem,Bricklayer [7281],Briqueteur-maçon/briqueteuse-maçonne [7281]
-rs_trade_mem,Carpenter [7271],Charpentier/charpentière [7271]
-rs_trade_mem,Construction electrician [7241],Électricien/électricienne (construction) [7241]
-rs_trade_mem,Cook [6322],Cuisinier/cuisinière [6322]
-rs_trade_mem,Crane operator [7371],Grutiers/grutières [7371]
-rs_trade_mem,Hairstylists and barbers [6341],Coiffeurs/coiffeuses et barbiers/barbières [6341]
-rs_trade_mem,Heavy duty equipment technician [7312],Mécanicien/mécanicienne d'équipement lourd [7312]
-rs_trade_mem,Industrial electrician [7242],Électricien industriel/électricienne industrielle [7242]
-rs_trade_mem,Industrial instrumentation and control technician [2243],Technicien/technicienne en instrumentation industrielle et contrôle [2243]
-rs_trade_mem,Industrial mechanic (millwright) [7311],Mécanicien industriel/mécanicienne industrielle (de chantier) [7311]
-rs_trade_mem,Ironworker [7236],Monteur/monteuse de charpente d'acier [7236]
-rs_trade_mem,Landscape horticulturist [2225],Horticulteur-paysagiste/horticultrice-paysagiste [2225]
-rs_trade_mem,Machinist [7231],Machiniste [7231]
-rs_trade_mem,Motor vehicle body repairer [7322],Débosseleur-peintre/débosseleuse-peintre [7322]
-rs_trade_mem,Painter and decorator [7294],Peintre et décorateur/décoratrice [7294]
-rs_trade_mem,Plumber [7251],Plombier/plombière [7251]
-rs_trade_mem,Powerline technician [7244],Monteur/monteuse de lignes sous tension [7244]
-rs_trade_mem,Refrigeration and air conditioning mechanic [7313],Mécanicien/mécanicienne en réfrigération et d'air climatisé [7313]
-rs_trade_mem,Roofer [7291],Couvreur/couvreuse [7291]
-rs_trade_mem,Sheet metal worker [7233],Ferblantier/ferblantière [7233]
-rs_trade_mem,Steamfitter - pipefitter [7252],Monteur/monteuse d'appareils de chauffage [7252]
-rs_trade_mem,Truck and transport mechanic [7321],Mécanicien/mécanicienne de camions et transport [7321]
-rs_trade_mem,Welder [7237],Soudeur/soudeuse [7237]
-trade_grp_mem,Other Red Seal trades,Autres métiers Sceau Rouge
-trade_grp_mem,All non-Red Seal trades,Tous les métiers non-Sceau rouge
-nrs_trade_mem,Child and youth worker [4212],Assistant social/assistante sociale auprès des jeunes [4212]
-nrs_trade_mem,Developmental services worker [4212],Travailleur/travailleuse de services de développement [4212]
-nrs_trade_mem,Early childhood educator [4214],Éducateur/éducatrice de la petite enfance [4214]
-nrs_trade_mem,Educational assistant [4214],Aide-enseignant/aide-enseignante [4214]
-nrs_trade_mem,Esthetician [6562],Esthéticien/esthéticienne [6562]
-trade_grp_mem,Selected non-Red Seal trades,Métiers non-Sceau Rouge sélectionnés
-trade_grp_mem,Other non-Red Seal trades,Autres métiers non-Sceau Rouge
-trade_grp_lbl,Trade group,Groupe des métiers
-rs_trade_lbl,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
-nrs_trade_lbl,Selected non-Red Seal trades,Métiers non-Sceau Rouge sélectionnés
-year_txt,Selected reference period,Période de référence sélectionnée
+mem_comp,Trades,MÃ©tiers
+mem_comp,Geography,GÃ©ographie
+mem_comp,Year of registration,AnnÃ©e de l'inscription
+mem_time,Within program duration,Au cours de la durÃ©e du programme
+mem_time,Within 1.5 times program duration,au cours d'une pÃ©riode Ã©quivalente Ã  '1,5' fois la durÃ©e du programme
+mem_time,Within 2 times program duration,au cours d'une pÃ©riode Ã©quivalente Ã  2 fois la durÃ©e du programme
+mesg_val,No data available,Aucune donn?e disponible
+age_cert,Median age at certification,Ã‚ge mÃ©dian lors de l'obtention du certificat
+time_cert,Median time to certification,DÃ©lai mÃ©dian d'obtention de la certification
+time_disc,Median time to discontinuation,DÃ©lai mÃ©dian d'obtention de la certification

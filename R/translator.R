@@ -28,7 +28,7 @@ SimpleTranslator <- setRefClass(
     { 
       dictionary_csv <<- dictionary_csv
       dictionary <<- dictionary_csv %>%
-        read_csv(col_types = cols(.default = "c")) %>%
+        read.csv() %>%
         split(.$key)
       language <<- language
     },
