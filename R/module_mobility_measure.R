@@ -118,24 +118,26 @@ mob_measure_server <- function(id, language) {
     output$year_control <- renderUI({
       req(input$comp)
       if (input$comp == 3) {
-        multi_selection <- TRUE
-        default_selection <- c(last_yr():2008)
+        sliderTextInput(
+          inputId = NS(id,"year"),
+          label = tr("lab_cert_year"), 
+          choices = c(2008:last_yr()),
+          selected = c(2008, last_yr())
+        )
       } else {
-        multi_selection <- FALSE
-        default_selection <- last_yr()
+        pickerInput(
+          inputId = NS(id, "year"),
+          label = tr("lab_cert_year"),
+          choices = c(last_yr():2008),
+          selected = last_yr(),
+          multiple = FALSE
+        )
       }
-      pickerInput(
-        inputId = NS(id, "year"),
-        label = tr("lab_cert_year"),
-        choices = c(last_yr():2008),
-        selected = default_selection,
-        multiple = multi_selection
-      )
     })
     
     # comparison dimension
     output$comp_control <- renderUI({
-      selectizeInput(
+      radioButtons(
         inputId = NS(id, "comp"),
         label = tr("lab_comp"),
         choices = setNames(c(1:3), tr("mem_comp")),
@@ -225,7 +227,7 @@ mob_measure_server <- function(id, language) {
       req(input$geo, input$year, input$trade)
       df <- full() %>%
         subset(
-          REF_DATE %in% input$year &
+          REF_DATE %in% c(min(input$year):max(input$year)) &
             dim_geo %in% input$geo &
             dim_trade %in% input$trade &
             dim_mode == input$mode &

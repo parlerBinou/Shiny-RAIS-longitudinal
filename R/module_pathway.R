@@ -317,6 +317,7 @@ pathway_server <- function(id, language) {
                     tickvals = df()$supp,
                     autorange = "reversed"
                   ),
+          xaxis = list(range = c(-2, 100)), # a way to add gap between axis label and the axis
           legend=list(
                     traceorder = "normal", orientation="h", yanchor="bottom",
                     y=1.05, xanchor="left", x=0))
@@ -351,7 +352,7 @@ pathway_server <- function(id, language) {
     get_clicked <- function() {
       clk <- event_data("plotly_click", source = "p")
       if (is.null(clk)) {selected_supp(1)} else {
-        if (input$comp == 3) { selected_supp(clk$x) } else { selected_supp(clk$y) }
+        if (input$direc == 3) { selected_supp(clk$x) } else { selected_supp(clk$y) }
       }
     }
     

@@ -29,31 +29,34 @@ mob_matrix_server <- function(id, language, innerSize) {
 
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
+    source("R/download_data.R")
     source("R/translator.R")
-    translator <- SimpleTranslator$new('dictionary/dict_pathway.csv', language)
+    translator <- SimpleTranslator$new('dictionary/dict_mobility_matrix.csv', language)
     tr <- translator$tr
-    # dictionary <- read.csv('dictionary/dict_mobility_matrix.csv',encoding = "utf-8")
-    # translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
-    # 
-    # tr <- function(text){ 
-    #   ls <-lapply(text,function(s) translation[[s]][[language]])
-    #   return(ls[[1]])
-    # }
     
     # load in the data file
-    # full <- read_csv("~/gitrepos/Shiny-RAIS-longitudinal/data/mig_mat.csv") %>%
-    #   as.data.frame()
     full <- reactive(
       # make it reactive, so it only downloads the data when the tab is selected
-      # download_data("37100204", c("from", "dim_trad", "dim_mode", "dim_years", "dim_type", "to")) %>%
-      read_csv("data/mig_mat.csv") %>% # before release, use downloaded csv file 
-      as.data.frame() %>%
-      filter(to > 4) %>%
-      mutate(to = to - 4) %>%
-      filter(!is.na(VALUE) & VALUE > 0 & from != to)
+      # download_data("37100204", c("trad", "mode", "years", "type", "to")) %>%
+      # before release, use downloaded csv file 
+      read_csv("data/mig_mat.csv", 
+        col_types = cols_only(
+          REF_DATE = col_integer(),
+          dim_geo = col_integer(),
+          dim_trad = col_integer(),
+          dim_mode = col_integer(),
+          dim_years = col_integer(),
+          dim_type = col_integer(),
+          dim_to = col_integer(),
+          VALUE = col_number())) %>% 
+        rename(from = dim_geo, to = dim_to) %>%
+        as.data.frame() %>%
+        filter(!is.na(VALUE) & VALUE > 0 & to > 4) %>%
+        mutate(to = to - 4) %>%
+        filter(from != to)
     )
     # load in the meta data
-    meta <- read_csv("data/metadata.csv")
+    meta <- read_csv("data/mobility_matrix_metadata.csv")
     
     # define region and colour of each region as named lists.
     region = setNames(meta$region, meta$code)
