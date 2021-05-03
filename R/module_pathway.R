@@ -294,7 +294,9 @@ pathway_server <- function(id, language) {
     output$outBarChart <- renderPlotly({
       
       # check if there are data points left after the filtering.
-      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
+#      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
+      validate(need(all(is.na(c(df()$cert,df()$cont,df()$disc))) == FALSE, message = tr("mesg_val") ))
+      
       
       if (input$direc != 3) {
         tick_label <- if (input$direc == 1) {df()$label1} else {df()$label2}
