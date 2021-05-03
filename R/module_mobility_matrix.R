@@ -9,14 +9,19 @@ mob_matrix_ui <- function(id) {
       
       uiOutput(NS(id, "mode_control")),
       
-      uiOutput(NS(id, "type_control")),
+      uiOutput(NS(id, "type_control"))#,
       
-      uiOutput(NS(id, "all_regions")),
+      # uiOutput(NS(id, "all_regions")),
+      # 
+      # conditionalPanel(
+      #   condition = paste0("input['", NS(id, "all_regions"), "'] == false"),
+      #   uiOutput(NS(id, "region_selection"))
+      # )
       
-      uiOutput(NS(id, "region_selection"))
     ), # sidebarPanel
     
     mainPanel(
+      #textOutput(NS(id, "outtable")),
       fillRow(
         plotOutput(NS(id, "outPlot"), width = "100%", height = "100%"),
         width = "100%"
@@ -130,38 +135,72 @@ mob_matrix_server <- function(id, language, innerSize) {
         selected = 1
       )
     })
-    
-    output$all_regions <- renderUI({
-      checkboxInput(
-        inputId = NS(id, "all_regions"),
-        label = "All regions",
-        value = TRUE)
-    })
-
+    # 
+    # output$all_regions <- renderUI({
+    #   checkboxInput(
+    #     inputId = NS(id, "all_regions"),
+    #     label = "All regions",
+    #     value = TRUE)
+    # })
+    # 
     # region, only appears on the screen if 'all region' is ticked off
     # no default value is provided
-    output$region_selection <- renderUI({
-      req(input$all_regions)
-      if (!input$all_regions) {
-        selectizeInput(
-          inputId = NS(id, "sel_region"),
-          label = NULL,
-          choices = setNames(c("", 1:11), tr("mem_geo")),
-          selected = NULL
-        )
-      }
-    })
+    # show_region_selection <- reactive(
+    #   req(input$all_regions)
+    #   
+    #   (!input$all_regions))
 
-    output$outPlot <- renderPlot({
+    # output$region_selection <- renderUI({
+    #   # req(show_region_selection)
+    #   # if (show_region_selection()) {
+    #     selectizeInput(
+    #       inputId = NS(id, "sel_region"),
+    #       label = NULL,
+    #       choices = setNames(c("", 1:11), tr("mem_geo")),
+    #       selected = NULL
+    #     )
+    #   # }
+    # })
+    
+    # outputOptions(output, "region_selection", suspendWhenHidden = FALSE)
+    
+    df <- reactive({
+      req(input$year, input$trade, input$mode, input$time, input$type)#,
+      #    input$all_regions, input$sel_region)
+      
+      # if (input$all_regions) {
+      #   selected_region <- c(1:11)
+      # } else {
+      #   selected_region <- as.numeric(input$sel_region)
+      # }
+      # 
       df <- full() %>%
         subset(
           REF_DATE == input$year &
             dim_trad == input$trade &
             dim_mode == input$mode &
             dim_years == input$time &
-            dim_type == input$type,
+            dim_type == input$type, #&
+            #(from %in% selected_region | to %in% selected_region),
           select = c(from, to, VALUE)
         )
+      
+      return(df)
+      
+      })
+
+    # output$outtable <- renderTable(
+    #   df()
+    # )    
+    # output$outtable <- renderText(
+    #   {if (input$all_regions) {
+    #     selected_region <- c(1:11)
+    #   } else {
+    #     selected_region <- as.numeric(input$sel_region)
+    #   }})
+
+    output$outPlot <- renderPlot({
+      req(df())
       
       # the province names also need to change depending on the selected language.
       pr_abbr <- if (language == "en") {
@@ -170,16 +209,16 @@ mob_matrix_server <- function(id, language, innerSize) {
         abbr <- meta$pr_fr
       }
 
-      req(input$all_regions) 
-      if (input$all_regions == FALSE) {
-        req(input$sel_region, cancelOutput = TRUE)
-        selected_region <- as.numeric(input$sel_region)
-        df <- df %>%
-          subset(from == selected_region | to == selected_region)
-      }
+      # req(input$all_regions) 
+      # if (input$all_regions == FALSE) {
+      #   req(input$sel_region, cancelOutput = TRUE)
+      #   selected_region <- as.numeric(input$sel_region)
+      #   df <- df %>%
+      #     subset(from %in% selected_region | to %in% selected_region)
+      # }
       
       # check if there are data points left after the filtering.
-      validate(need(nrow(df) > 0, message = tr("text_no_data")))
+      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
       
       # main code for the chord diagram.
       # largely based on https://github.com/guyabel/migest/blob/master/demo/cfplot_reg2.
@@ -195,7 +234,7 @@ mob_matrix_server <- function(id, language, innerSize) {
       
       # region, code, and colour are defined in metadata.
       chordDiagram(
-        x = df,
+        x = df(),
         group = region,
         order = meta$code,
         grid.col = colour,
