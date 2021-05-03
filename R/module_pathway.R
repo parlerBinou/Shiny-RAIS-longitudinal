@@ -397,7 +397,8 @@ pathway_server <- function(id, language) {
     output$vbox_age_reg <- renderValueBox({
       my_valueBox(
         df()$age_reg[df()$supp == selected_supp()],
-        tr("age_reg"), size = "small")
+        tr("age_reg"), size = "small",
+        icon = "flag")
     })
     
     output$vbox_time_cert <- renderValueBox({
@@ -408,13 +409,15 @@ pathway_server <- function(id, language) {
                           locale = language),
             "<sup>", df()$time_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("time_cert"), size = "small")
+        tr("time_cert"), size = "small",
+        icon = "calendar-check")
     })
     
     output$vbox_durpgm <- renderValueBox({
       my_valueBox(
         df()$durpgm[df()$supp == selected_supp()],
-        tr("dur_pgm"), size = "small")
+        tr("dur_pgm"), size = "small",
+        icon ="hourglass-half")
     })
     
     output$vbox_age_cert <- renderValueBox({
@@ -424,7 +427,8 @@ pathway_server <- function(id, language) {
             df()$age_cert[df()$supp == selected_supp()],
             "<sup>", df()$age_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("age_cert"), size = "small")
+        tr("age_cert"), size = "small",
+        icon = "award")
     })
     
     output$vbox_time_disc <- renderValueBox({
@@ -434,7 +438,8 @@ pathway_server <- function(id, language) {
             df()$time_disc[df()$supp == selected_supp()],
             "<sup>", df()$time_disc_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("time_disc"), size = "small")
+        tr("time_disc"), size = "small",
+        icon = "calendar-times")
     })
     
   }) # module func
