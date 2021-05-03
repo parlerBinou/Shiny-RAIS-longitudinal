@@ -257,10 +257,14 @@ mob_measure_server <- function(id, language) {
       if (input$comp != 3) {
         tick_label <- if (input$comp == 1) {df()$label1} else {df()$label2}
         
+        net_text <- format_number(df()$ind11, locale=language)
+        in_text <- format_number(df()$ind9, locale=language)
+        out_text <- format_number(df()$ind10, locale=language)
+        
         fig <- plot_ly(
           x = df()$ind11, y = df()$supp, name = tr("net"), type = "bar",
-          orientation = "h", marker = list(color = '66c2a5'),
-          hovertemplate = "%{y}: %{x}%",
+          text = net_text, orientation = "h", marker = list(color = '66c2a5'),
+          hovertemplate = "%{y}: %{text}%",
           source = "mm",
           # when comparing across geography and Canada is selected, show
           # In and Out and hide Net - always zero.
@@ -268,12 +272,12 @@ mob_measure_server <- function(id, language) {
           visible = ifelse(
             (input$comp == 2 & input$geo == 1), "legendonly", TRUE)) %>%
           add_trace(x = df()$ind9, name = tr("in"), type = "bar",
-                    marker = list(color = 'fc8d62'),
+                    text = in_text, marker = list(color = 'fc8d62'),
                     visible = ifelse(
                       (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>%
           add_trace(x = df()$ind10, name = tr("out"), type = "bar",
-                    marker = list(color = '8da0cb'),
+                    text = out_text, marker = list(color = '8da0cb'),
                     visible = ifelse(
                       (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>% 
