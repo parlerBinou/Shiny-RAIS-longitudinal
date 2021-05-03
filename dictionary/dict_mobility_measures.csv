@@ -55,7 +55,7 @@ absence,Absence of mobility,Absence de mobilité
 in,In,Entrant
 out,Out,Sortant
 net,Net,Net
-text_no_data,No data available.,Aucune donnée disponible.
+text_no_data,Data is not available yet.,Les données ne sont pas encore disponibles.
 lab_comp,Compare by,Comparer par
 mem_comp,Geography,Géographie
 mem_comp,Trades,Métiers
