@@ -398,7 +398,7 @@ mob_measure_server <- function(id, language) {
         format_number(
           df()$ind2[df()$supp == selected_supp()],
           locale = language), tr("medage"),
-          size = "small")
+          icon = "award", size = "small")
     })
     
     output$vbox_absence <- renderValueBox({
