@@ -2,11 +2,10 @@ pathway_ui <- function(id) {
   
   sidebarLayout(
     sidebarPanel(
+      uiOutput(NS(id, 'direc_control')),
       uiOutput(NS(id, 'year_control')),
       uiOutput(NS(id, 'gender_control')),
       uiOutput(NS(id, 'times_control')),
-      br(),
-      uiOutput(NS(id, 'direc_control')),
       uiOutput(NS(id, "trade_control")),
       uiOutput(NS(id, "geo_control")),
       width = 4
