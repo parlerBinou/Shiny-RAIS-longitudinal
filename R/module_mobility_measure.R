@@ -50,25 +50,23 @@ mob_measure_server <- function(id, language) {
   moduleServer(id, function(input, output, session) {
     source("R/format_number.R")
     source("R/valuebox.R")
-    source("R/translator.R")
     
-    # load in the dictionary.
-    translator <- SimpleTranslator$new('dictionary/dict_mobility_measures.csv', language)
-    tr <- translator$tr
-    #dictionary <- setup_dictionary('dictionary/dict_mobility_measures.csv')
-    # 
-    # tr <- function(key) {
-    #   dictionary[[key]][[language]]
-    # }
+    dictionary <- read.csv('dictionary/dict_mobility_measures.csv') %>%
+      split(.$key)
     
-    geo_names <- tr("mem_geo")
-    grp = setNames(c(1:3,19,20), tr("mem_trade_grp"))
-    rs = setNames(c(4:18), tr("mem_trade_rs"))
-    trade_names <- c(grp, rs) %>% sort() %>% names()
+    # uses a reactiveVal language.
+    tr <- function(key) {
+      dictionary[[key]][[language()]]
+    }
+    
+    geo_names <- reactive(tr("mem_geo"))
+    grp = reactive(setNames(c(1:3,19,20), tr("mem_trade_grp")))
+    rs = reactive(setNames(c(4:18), tr("mem_trade_rs")))
+    trade_names <- reactive({
+      c(grp(), rs()) %>% sort() %>% names()
+    })
     
     # load in the data file
-    # full <- read_csv("~/gitrepos/Shiny-RAIS-longitudinal/data/mig_mat.csv") %>%
-    #   as.data.frame()
     full <- reactive(
       # make it reactive, so it only downloads the data when the tab is selected
       # download_data("37100205", c("trade", "mode", "years", "type", "ind")) %>%
@@ -168,8 +166,8 @@ mob_measure_server <- function(id, language) {
     output$trade_control <- renderUI({
       req(input$comp)
       choice_set = list(
-        grp = setNames(c(1:3,19,20), tr("mem_trade_grp")),
-        rs = setNames(c(4:18), tr("mem_trade_rs"))
+        grp = grp(),
+        rs = rs()
       )
       names(choice_set) <- c(tr("lab_trade_grp"), tr("lab_rs"))
       
@@ -236,8 +234,8 @@ mob_measure_server <- function(id, language) {
         arrange(dim_geo, dim_trade, desc(REF_DATE)) %>%
         mutate(
           supp = c(1:max(nrow(.), 1)),
-          label1 = geo_names[dim_geo],
-          label2 = trade_names[dim_trade],
+          label1 = geo_names()[dim_geo],
+          label2 = trade_names()[dim_trade],
           label3 = as.character(REF_DATE)
         )
     })
@@ -257,9 +255,9 @@ mob_measure_server <- function(id, language) {
       if (input$comp != 3) {
         tick_label <- if (input$comp == 1) {df()$label1} else {df()$label2}
         
-        net_text <- format_number(df()$ind11, locale=language)
-        in_text <- format_number(df()$ind9, locale=language)
-        out_text <- format_number(df()$ind10, locale=language)
+        net_text <- format_number(df()$ind11, locale = language())
+        in_text <- format_number(df()$ind9, locale = language())
+        out_text <- format_number(df()$ind10, locale = language())
         
         fig <- plot_ly(
           x = df()$ind11, y = df()$supp, name = tr("net"), type = "bar",
@@ -310,9 +308,9 @@ mob_measure_server <- function(id, language) {
           
           hover_template <- "%{x}: %{text} %"
         }
-        net_text <- format_number(net_measure, locale=language)
-        in_text <- format_number(in_measure, locale=language)
-        out_text <- format_number(out_measure, locale=language)
+        net_text <- format_number(net_measure, locale=language())
+        in_text <- format_number(in_measure, locale=language())
+        out_text <- format_number(out_measure, locale=language())
 
         fig <- plot_ly(
           x = df()$supp, y = net_measure, name = tr("net"), type = "bar",
@@ -391,7 +389,7 @@ mob_measure_server <- function(id, language) {
           df()$ind1[df()$supp == selected_supp()],
           in_bracket = df()$ind3[df()$supp == selected_supp()],
           in_bracket_percent = FALSE,
-          locale = language),
+          locale = language()),
         paste0(tr("cohort"), " (", tr("taxfilers"), ")"),
         icon = "users", size = "small")
     })
@@ -401,7 +399,7 @@ mob_measure_server <- function(id, language) {
       my_valueBox(
         format_number(
           df()$ind2[df()$supp == selected_supp()],
-          locale = language), tr("medage"),
+          locale = language()), tr("medage"),
           icon = "award", size = "small")
     })
     
@@ -410,7 +408,7 @@ mob_measure_server <- function(id, language) {
         format_number(
           df()$ind4[df()$supp == selected_supp()],
           in_bracket = df()$ind5[df()$supp == selected_supp()],
-          locale = language), tr("absence"),
+          locale = language()), tr("absence"),
         icon = "house-user", size = "small")
     })
     
@@ -419,7 +417,7 @@ mob_measure_server <- function(id, language) {
         format_number(
           df()$ind8[df()$supp == selected_supp()],
           in_bracket = df()$ind11[df()$supp == selected_supp()],
-          locale = language), tr("net"),
+          locale = language()), tr("net"),
           icon = "exchange-alt", size = "small")
     })
     
@@ -428,7 +426,7 @@ mob_measure_server <- function(id, language) {
         format_number(
           df()$ind6[df()$supp == selected_supp()],
           in_bracket = df()$ind9[df()$supp == selected_supp()],
-          locale = language), tr("in"),
+          locale = language()), tr("in"),
           icon = "sign-in-alt", size = "small")
     })
     
@@ -437,7 +435,7 @@ mob_measure_server <- function(id, language) {
         format_number(
           df()$ind7[df()$supp == selected_supp()],
           in_bracket = df()$ind10[df()$supp == selected_supp()],
-          locale = language), tr("out"),
+          locale = language()), tr("out"),
           icon = "sign-out-alt", size = "small")
     })
     

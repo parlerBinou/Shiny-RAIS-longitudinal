@@ -35,9 +35,13 @@ mob_matrix_server <- function(id, language, innerSize) {
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
     source("R/download_data.R")
-    source("R/translator.R")
-    translator <- SimpleTranslator$new('dictionary/dict_mobility_matrix.csv', language)
-    tr <- translator$tr
+    dictionary <- read.csv('dictionary/dict_mobility_matrix.csv') %>%
+      split(.$key)
+    
+    # uses a reactiveVal language.
+    tr <- function(key) {
+      dictionary[[key]][[language()]]
+    }
     
     # load in the data file
     full <- reactive(
@@ -203,7 +207,7 @@ mob_matrix_server <- function(id, language, innerSize) {
       req(df())
       
       # the province names also need to change depending on the selected language.
-      pr_abbr <- if (language == "en") {
+      pr_abbr <- if (language() == "en") {
         abbr <- meta$pr_en
       } else {
         abbr <- meta$pr_fr
