@@ -2,11 +2,10 @@ pathway_ui <- function(id) {
   
   sidebarLayout(
     sidebarPanel(
+      uiOutput(NS(id, 'direc_control')),
       uiOutput(NS(id, 'year_control')),
       uiOutput(NS(id, 'gender_control')),
       uiOutput(NS(id, 'times_control')),
-      br(),
-      uiOutput(NS(id, 'direc_control')),
       uiOutput(NS(id, "trade_control")),
       uiOutput(NS(id, "geo_control")),
       width = 4
@@ -20,10 +19,10 @@ pathway_ui <- function(id) {
         valueBoxOutput(NS(id, "vbox_trade"), width = 12)),
       fluidRow(
         valueBoxOutput(NS(id, "vbox_cohort"), width = 4),
-        valueBoxOutput(NS(id, "vbox_durpgm"), width = 4),
-        valueBoxOutput(NS(id, "vbox_age_reg"), width = 4)),
+        valueBoxOutput(NS(id, "vbox_age_reg"), width = 4),
+        valueBoxOutput(NS(id, "vbox_time_cert"), width = 4)),
       fluidRow(
-        valueBoxOutput(NS(id, "vbox_time_cert"), width = 4),
+        valueBoxOutput(NS(id, "vbox_durpgm"), width = 4),
         valueBoxOutput(NS(id, "vbox_age_cert"), width = 4),
         valueBoxOutput(NS(id, "vbox_time_disc"), width = 4)),
       
@@ -294,7 +293,9 @@ pathway_server <- function(id, language) {
     output$outBarChart <- renderPlotly({
       
       # check if there are data points left after the filtering.
-      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
+#      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
+      validate(need(all(is.na(c(df()$cert,df()$cont,df()$disc))) == FALSE, message = tr("mesg_val") ))
+      
       
       cert_text <- format_number(df()$cert, locale=language)
       cont_text <- format_number(df()$cont, locale=language)
@@ -383,13 +384,13 @@ pathway_server <- function(id, language) {
     
     output$vbox_prov <- renderValueBox({
       my_valueBox(
-        df()$label1[df()$supp == selected_supp()], tr("lab_geo"),
+        df()$label2[df()$supp == selected_supp()], tr("lab_geo"),
         icon = "map-marker")
     })
     
     output$vbox_trade <- renderValueBox({
       my_valueBox(
-        df()$label2[df()$supp == selected_supp()], tr("lab_trade"),
+        df()$label1[df()$supp == selected_supp()], tr("lab_trade"),
         icon = "toolbox")
     })
     
@@ -403,7 +404,8 @@ pathway_server <- function(id, language) {
     output$vbox_age_reg <- renderValueBox({
       my_valueBox(
         df()$age_reg[df()$supp == selected_supp()],
-        tr("age_reg"), size = "small")
+        tr("age_reg"), size = "small",
+        icon = "flag")
     })
     
     output$vbox_time_cert <- renderValueBox({
@@ -414,13 +416,15 @@ pathway_server <- function(id, language) {
                           locale = language),
             "<sup>", df()$time_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("time_cert"), size = "small")
+        tr("time_cert"), size = "small",
+        icon = "calendar-check")
     })
     
     output$vbox_durpgm <- renderValueBox({
       my_valueBox(
         df()$durpgm[df()$supp == selected_supp()],
-        tr("dur_pgm"), size = "small")
+        tr("dur_pgm"), size = "small",
+        icon ="hourglass-half")
     })
     
     output$vbox_age_cert <- renderValueBox({
@@ -430,7 +434,8 @@ pathway_server <- function(id, language) {
             df()$age_cert[df()$supp == selected_supp()],
             "<sup>", df()$age_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("age_cert"), size = "small")
+        tr("age_cert"), size = "small",
+        icon = "award")
     })
     
     output$vbox_time_disc <- renderValueBox({
@@ -440,7 +445,8 @@ pathway_server <- function(id, language) {
             df()$time_disc[df()$supp == selected_supp()],
             "<sup>", df()$time_disc_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
-        tr("time_disc"), size = "small")
+        tr("time_disc"), size = "small",
+        icon = "calendar-times")
     })
     
   }) # module func

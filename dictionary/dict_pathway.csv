@@ -21,7 +21,7 @@ mem_geo,Saskatchewan,Saskatchewan
 mem_geo,Alberta,Alberta
 mem_geo,British Columbia,Colombie-Britannique
 mem_geo,Territories,Territoires
-mem_trade_grp,All trades,Tous les métiers 
+mem_trade_grp,All trades,Tous les métiers
 mem_trade_grp,All Red Seal trades,Tous les métiers Sceau Rouge
 mem_trade_grp,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
 mem_trade_rs,Agricultural equipment technician,Mécanicien/mécanicienne de machinerie agricole
@@ -40,7 +40,7 @@ mem_trade_rs,Ironworker,Monteur/monteuse de charpente d'acier
 mem_trade_rs,Landscape horticulturist,Horticulteur-paysagiste/horticultrice-paysagiste
 mem_trade_rs,Machinist,Machiniste
 mem_trade_rs,Motor vehicle body repairer,Débosseleur-peintre/débosseleuse-peintre
-mem_trade_rs,Painter and decorator,Peintre et décorateur/décoratrice 
+mem_trade_rs,Painter and decorator,Peintre et décorateur/décoratrice
 mem_trade_rs,Plumber,Plombier/plombière
 mem_trade_rs,Powerline technician,Monteur/monteuse de lignes sous tension
 mem_trade_rs,Refrigeration and air conditioning mechanic,Mécanicien/mécanicienne en réfrigération et d'air climatisé
@@ -71,9 +71,9 @@ mem_comp,Trades,Métiers
 mem_comp,Geography,Géographie
 mem_comp,Year of registration,Année de l'inscription
 mem_time,Within program duration,Au cours de la durée du programme
-mem_time,Within 1.5 times program duration,au cours d'une période équivalente à '1,5' fois la durée du programme
-mem_time,Within 2 times program duration,au cours d'une période équivalente à 2 fois la durée du programme
-mesg_val,No data available yet.,Les données ne sont pas encore disponibles.
+mem_time,Within 1.5 times program duration,"Au cours d'une période équivalente à 1,5 fois la durée du programme"
+mem_time,Within 2 times program duration,Au cours d'une période équivalente à 2 fois la durée du programme
+mesg_val,Data is not available yet.,Les données ne sont pas encore disponibles.
 age_cert,Median age at certification,Âge médian lors de l'obtention du certificat
 time_cert,Median time to certification,Délai médian d'obtention de la certification
-time_disc,Median time to discontinuation,Délai médian d'obtention de la certification
+time_disc,Median time to discontinuation,Délai médian d'abandon
