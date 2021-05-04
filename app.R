@@ -3,13 +3,21 @@ library(plotly)
 library(tidyverse)
 library(shinydashboard)
 library(circlize)
-#library(Cairo)
+library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
 source("R/module_pathway.R")
 source("R/module_mobility_matrix.R")
 source("R/module_mobility_measure.R")
+
+navbarPageWithButton <- function(..., button) {
+  navbar <- navbarPage(...)
+  div <- tags$div(class = "navbar-form", style = 'float: right; margin-top: 15px;', button)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], div)
+  navbar
+}
 
 ui <- bootstrapPage(
   
@@ -23,9 +31,16 @@ ui <- bootstrapPage(
             });
         ')),
   
-  navbarPage(
+  # fluidRow(
+  #   column(9, , offset=1),
+  #   
+  #   column(2, actionLink("change_lang",
+  #                        textOutput("other_lang")))
+  # ),
+  
+  navbarPageWithButton(
     
-    title=NULL,
+    title=textOutput("title_main"),
     
     tabPanel(
       textOutput("title_pathway"),
@@ -39,7 +54,9 @@ ui <- bootstrapPage(
     tabPanel(
       textOutput("title_mob_matrix"),
       mob_matrix_ui("mob_matrix")
-    )
+    ),
+    tags$style(HTML(".navbar-header { width:100% }")),
+    button = actionLink("change_lang", textOutput("other_lang"))
     
   ) # navbar page
 ) # bootstrap page
@@ -58,9 +75,18 @@ server <- function(input, output, session) {
     dictionary[[key]][[language()]]
   }
   
+  output$title_main <- renderText(tr("title_main"))
   output$title_pathway <- renderText(tr("title_pathway"))
   output$title_mob_measures <- renderText(tr("title_mob_measures"))
   output$title_mob_matrix <- renderText(tr("title_mob_matrix"))
+  
+  output$other_lang <- renderText({
+    if (language() == "en") {"Français"} else {"English"}
+  })
+  
+  observeEvent(input$change_lang, {
+    if (language() == "en") {language("fr")} else {language("en")}
+  })
   
   pathway_server("pathway", language)
   
