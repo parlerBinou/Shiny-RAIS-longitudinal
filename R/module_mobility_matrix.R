@@ -35,9 +35,13 @@ mob_matrix_server <- function(id, language, innerSize) {
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
     source("R/download_data.R")
-    source("R/translator.R")
-    translator <- SimpleTranslator$new('dictionary/dict_mobility_matrix.csv', language)
-    tr <- translator$tr
+    dictionary <- read.csv('dictionary/dict_mobility_matrix.csv') %>%
+      split(.$key)
+    
+    # uses a reactiveVal language.
+    tr <- function(key) {
+      dictionary[[key]][[language()]]
+    }
     
     # load in the data file
     full <- reactive(
@@ -66,7 +70,33 @@ mob_matrix_server <- function(id, language, innerSize) {
     # define region and colour of each region as named lists.
     region = setNames(meta$region, meta$code)
     colour = setNames(meta$colour, meta$code)
-    #print(head(full))
+    
+    # to make the cohort selection persistent even if input$time changed,
+    # define it as a reactiveVal.
+    # initialize it with the most recent available cohort.
+    # because full() itself is a reactive object, isolate it to initialize.
+    selected_cohort <- reactiveVal(
+      isolate(max(full()$REF_DATE))
+    )
+    
+    # get the selected cohort value and update selected_cohort.
+    get_cohort <- function() {
+      selected_cohort(max(input$year))
+    }
+    
+    # reset the stored value when the selected_chort is invalid.
+    reset_cohort <- function() {
+      selected_cohort(last_yr())
+    }
+    
+    # observe changes in input$year and update the stored value in selected_cohort.
+    observeEvent(input$year, get_cohort())
+    # observe changes in input$time
+    # if the stored value in selected_cohort is invalid, reset it.
+    observeEvent(input$time, {
+      if (selected_cohort() > last_yr()) {reset_cohort()}
+    })
+    
     
     # time (year after certification)
     # translation is done manually using the selected_dict().
@@ -101,7 +131,7 @@ mob_matrix_server <- function(id, language, innerSize) {
         inputId = NS(id, "year"),
         label = tr("lab_cert_year"),
         choices = c(last_yr():2008),
-        selected = last_yr()
+        selected = selected_cohort()
       )
     })
     
@@ -203,7 +233,7 @@ mob_matrix_server <- function(id, language, innerSize) {
       req(df())
       
       # the province names also need to change depending on the selected language.
-      pr_abbr <- if (language == "en") {
+      pr_abbr <- if (language() == "en") {
         abbr <- meta$pr_en
       } else {
         abbr <- meta$pr_fr

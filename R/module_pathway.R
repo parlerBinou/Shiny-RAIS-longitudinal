@@ -42,29 +42,25 @@ pathway_server <- function(id, language) {
     
     # Preparation --------------------------------------------------------------
     source("R/format_number.R")
-    source("R/translator.R")
-    translator <- SimpleTranslator$new('dictionary/dict_pathway.csv', language)
-    tr <- translator$tr
-    # dictionary <- read.csv('dictionary/dict_pathway.csv',encoding = "latin1")
-    # translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
-     
-    # define not in function
-    #'%!in%' <- function(x,y)!('%in%'(x,y))
     
-    # define trasnlation  function
-    # tr <- function(text){ 
-    #   ls <-lapply(text,function(s) translation[[s]][[language]])
-    #   return(ls[[1]])
-    # }
-    # 
+    dictionary <- read.csv('dictionary/dict_pathway.csv') %>%
+      split(.$key)
+    
+    # uses a reactiveVal language.
+    tr <- function(key) {
+      dictionary[[key]][[language()]]
+    }
+    
     # extract list of trades and geos
-    refGeo <- tr("mem_geo")
+    refGeo <- reactive(tr("mem_geo"))
     
-    grp <- setNames(c(1:3,29,30,36,37), tr("mem_trade_grp"))
-    rs <- setNames(c(4:28), tr("mem_trade_rs"))
-    nrs <- setNames(c(31:35), tr("mem_trade_nrs"))
-    refTrade <- c(grp, rs, nrs) %>% sort() %>% names()
-    
+    grp <- reactive(setNames(c(1:3,29,30,36,37), tr("mem_trade_grp")))
+    rs <- reactive(setNames(c(4:28), tr("mem_trade_rs")))
+    nrs <- reactive(setNames(c(31:35), tr("mem_trade_nrs")))
+    refTrade <- reactive({
+      c(grp(), rs(), nrs()) %>% sort() %>% names()
+      })
+
     #  Data processing----------------------------------------------------------
     dims <- c("sex", "trade", "ind")
     # full <- download_data("37100205", dims) %>%
@@ -111,6 +107,32 @@ pathway_server <- function(id, language) {
        
     })
     
+    # to make the cohort selection persistent even if input$time changed,
+    # define it as a reactiveVal.
+    # initialize it with the most recent available cohort.
+    selected_cohort <- reactiveVal({
+      max(full$REF_DATE)
+    })
+    
+    # get the selected cohort value and update selected_cohort.
+    get_cohort <- function() {
+      selected_cohort(max(input$year))
+    }
+    
+    # reset the stored value when the selected_chort is invalid.
+    reset_cohort <- function() {
+      selected_cohort(last_year())
+    }
+    
+    # observe changes in input$year and update the stored value in selected_cohort.
+    observeEvent(input$year, get_cohort())
+    # observe changes in input$time
+    # if the stored value in selected_cohort is invalid, reset it.
+    observeEvent(input$time, {
+      if (selected_cohort() > last_year()) {reset_cohort()}
+    })
+    
+    
     # slider for "reference period"
     output$year_control <- renderUI({
       req(input$direc)
@@ -120,7 +142,7 @@ pathway_server <- function(id, language) {
           inputId = NS(id,"year"),
           label = tr("lab_year"), 
           choices = c(2008:last_year()),
-          selected = c(2008, last_year())
+          selected = c(2008, selected_cohort())
         )
       } else {
         # slide time point
@@ -128,7 +150,7 @@ pathway_server <- function(id, language) {
           inputId = NS(id,"year"),
           label = tr("lab_year"),
           choices = c(last_year():2008),
-          selected = last_year()
+          selected = as.numeric(selected_cohort())
         )
       }
     })
@@ -158,9 +180,9 @@ pathway_server <- function(id, language) {
       req(input$direc)
       
       choice_set = list(
-        grp = grp, # these are defined at the beginning of the server logic.
-        rs = rs,
-        nrs = nrs 
+        grp = grp(), # these are defined at the beginning of the server logic.
+        rs = rs(),
+        nrs = nrs() 
       )
       names(choice_set) <- c(tr("lab_trade_grp"), tr("lab_rs"), tr("lab_nrs"))
       
@@ -231,8 +253,8 @@ pathway_server <- function(id, language) {
         arrange(dim_geo, dim_trade, desc(REF_DATE)) %>%
         mutate(
           supp = c(1:max(nrow(.), 1)),
-          label1 = refTrade[dim_trade],
-          label2 = refGeo[dim_geo],
+          label1 = refTrade()[dim_trade],
+          label2 = refGeo()[dim_geo],
           label3 = as.character(REF_DATE))
       
       if (input$times == 1) {
@@ -297,9 +319,9 @@ pathway_server <- function(id, language) {
       validate(need(all(is.na(c(df()$cert,df()$cont,df()$disc))) == FALSE, message = tr("mesg_val") ))
       
       
-      cert_text <- format_number(df()$cert, locale=language)
-      cont_text <- format_number(df()$cont, locale=language)
-      disc_text <- format_number(df()$disc, locale=language)
+      cert_text <- format_number(df()$cert, locale=language())
+      cont_text <- format_number(df()$cont, locale=language())
+      disc_text <- format_number(df()$disc, locale=language())
       
       if (input$direc != 3) {
         tick_label <- if (input$direc == 1) {df()$label1} else {df()$label2}
@@ -397,7 +419,7 @@ pathway_server <- function(id, language) {
     output$vbox_cohort <- renderValueBox({
       my_valueBox(
         format_number(
-          df()$cohort[df()$supp == selected_supp()], locale = language),
+          df()$cohort[df()$supp == selected_supp()], locale = language()),
           tr("cohort"), icon = "users", size = "small")
     })
     
@@ -413,7 +435,7 @@ pathway_server <- function(id, language) {
         HTML(
           paste0(
             format_number(df()$time_cert[df()$supp == selected_supp()],
-                          locale = language),
+                          locale = language()),
             "<sup>", df()$time_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
         tr("time_cert"), size = "small",

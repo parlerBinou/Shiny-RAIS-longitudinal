@@ -10,20 +10,6 @@ options(shiny.usecairo=T)
 source("R/module_pathway.R")
 source("R/module_mobility_matrix.R")
 source("R/module_mobility_measure.R")
-source("R/translator.R")
-
-language <- "en"
-translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
-tr <- translator$tr
-# dictionary <- read.csv('dictionary/dict_main.csv',encoding = "utf-8")
-# translation <- dlply(dictionary ,.(key), function(s) key = as.list(s))
-
-
-# 
-# tr <- function(text){ 
-#   ls <-lapply(text,function(s) translation[[s]][[language]])
-#   return(ls[[1]])
-# }
 
 ui <- bootstrapPage(
   
@@ -42,16 +28,16 @@ ui <- bootstrapPage(
     title=NULL,
     
     tabPanel(
-      tr("title_pathway"),
+      textOutput("title_pathway"),
       pathway_ui("pathway")
     ), 
     
     tabPanel(
-      tr("title_mob_measures"),
+      textOutput("title_mob_measures"),
       mob_measure_ui("mob_measure")
     ),
     tabPanel(
-      tr("title_mob_matrix"),
+      textOutput("title_mob_matrix"),
       mob_matrix_ui("mob_matrix")
     )
     
@@ -60,6 +46,21 @@ ui <- bootstrapPage(
 
 
 server <- function(input, output, session) {
+  
+  language <- reactiveVal("fr")
+  # translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
+  # tr <- translator$tr
+  dictionary <- read.csv('dictionary/dict_main.csv') %>%
+    split(.$key)
+  
+  # uses a reactiveVal language.
+  tr <- function(key) {
+    dictionary[[key]][[language()]]
+  }
+  
+  output$title_pathway <- renderText(tr("title_pathway"))
+  output$title_mob_measures <- renderText(tr("title_mob_measures"))
+  output$title_mob_matrix <- renderText(tr("title_mob_matrix"))
   
   pathway_server("pathway", language)
   
