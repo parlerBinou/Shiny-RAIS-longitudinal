@@ -69,7 +69,7 @@ rate_cont,Continuation,Persévérance
 rate_disc,Discontinuation,Abandon
 mem_comp,Trades,Métiers
 mem_comp,Geography,Géographie
-mem_comp,Year of registration,Année de l'inscription
+mem_comp,Year of registration,Année d'inscription
 mem_time,Within program duration,Au cours de la durée du programme
 mem_time,Within 1.5 times program duration,"Au cours d'une période équivalente à 1,5 fois la durée du programme"
 mem_time,Within 2 times program duration,Au cours d'une période équivalente à 2 fois la durée du programme

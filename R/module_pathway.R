@@ -107,6 +107,32 @@ pathway_server <- function(id, language) {
        
     })
     
+    # to make the cohort selection persistent even if input$time changed,
+    # define it as a reactiveVal.
+    # initialize it with the most recent available cohort.
+    selected_cohort <- reactiveVal({
+      max(full$REF_DATE)
+    })
+    
+    # get the selected cohort value and update selected_cohort.
+    get_cohort <- function() {
+      selected_cohort(max(input$year))
+    }
+    
+    # reset the stored value when the selected_chort is invalid.
+    reset_cohort <- function() {
+      selected_cohort(last_year())
+    }
+    
+    # observe changes in input$year and update the stored value in selected_cohort.
+    observeEvent(input$year, get_cohort())
+    # observe changes in input$time
+    # if the stored value in selected_cohort is invalid, reset it.
+    observeEvent(input$time, {
+      if (selected_cohort() > last_year()) {reset_cohort()}
+    })
+    
+    
     # slider for "reference period"
     output$year_control <- renderUI({
       req(input$direc)
@@ -116,7 +142,7 @@ pathway_server <- function(id, language) {
           inputId = NS(id,"year"),
           label = tr("lab_year"), 
           choices = c(2008:last_year()),
-          selected = c(2008, last_year())
+          selected = c(2008, selected_cohort())
         )
       } else {
         # slide time point
@@ -124,7 +150,7 @@ pathway_server <- function(id, language) {
           inputId = NS(id,"year"),
           label = tr("lab_year"),
           choices = c(last_year():2008),
-          selected = last_year()
+          selected = as.numeric(selected_cohort())
         )
       }
     })

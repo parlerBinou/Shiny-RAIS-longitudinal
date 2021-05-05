@@ -110,6 +110,33 @@ mob_measure_server <- function(id, language) {
         max()
     })
     
+    # to make the cohort selection persistent even if input$time changed,
+    # define it as a reactiveVal.
+    # initialize it with the most recent available cohort.
+    # because full() itself is a reactive object, isolate it to initialize.
+    selected_cohort <- reactiveVal(
+      isolate(max(full()$REF_DATE))
+    )
+    
+    # get the selected cohort value and update selected_cohort.
+    get_cohort <- function() {
+      selected_cohort(max(input$year))
+    }
+    
+    # reset the stored value when the selected_chort is invalid.
+    reset_cohort <- function() {
+      selected_cohort(last_yr())
+    }
+    
+    # observe changes in input$year and update the stored value in selected_cohort.
+    observeEvent(input$year, get_cohort())
+    # observe changes in input$time
+    # if the stored value in selected_cohort is invalid, reset it.
+    observeEvent(input$time, {
+      if (selected_cohort() > last_yr()) {reset_cohort()}
+    })
+    
+    
     #  menu for year (cohort)
     # note last_yr() is used as it's reactive.
     # last_yr() appears first in the list, and it goes back to 2008.
@@ -120,14 +147,14 @@ mob_measure_server <- function(id, language) {
           inputId = NS(id,"year"),
           label = tr("lab_cert_year"), 
           choices = c(2008:last_yr()),
-          selected = c(2008, last_yr())
+          selected = c(2008, selected_cohort())
         )
       } else {
         pickerInput(
           inputId = NS(id, "year"),
           label = tr("lab_cert_year"),
           choices = c(last_yr():2008),
-          selected = last_yr(),
+          selected = selected_cohort(),
           multiple = FALSE
         )
       }
