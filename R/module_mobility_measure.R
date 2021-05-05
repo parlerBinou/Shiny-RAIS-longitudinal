@@ -48,10 +48,10 @@ mob_measure_ui <- function(id) {
 mob_measure_server <- function(id, language) {
 
   moduleServer(id, function(input, output, session) {
-    source("R/format_number.R")
-    source("R/valuebox.R")
+    source("../R/format_number.R")
+    source("../R/valuebox.R")
     
-    dictionary <- read.csv('dictionary/dict_mobility_measures.csv') %>%
+    dictionary <- read.csv('../dictionary/dict_mobility_measures.csv') %>%
       split(.$key)
     
     # uses a reactiveVal language.
@@ -71,7 +71,7 @@ mob_measure_server <- function(id, language) {
       # make it reactive, so it only downloads the data when the tab is selected
       # download_data("37100205", c("trade", "mode", "years", "type", "ind")) %>%
       # before release, use downloaded csv file 
-      read_csv("data/mobility_measures.csv",
+      read_csv("../data/mobility_measures.csv",
                col_types = cols_only(
                  REF_DATE = col_integer(),
                  dim_geo = col_integer(),

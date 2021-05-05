@@ -41,9 +41,9 @@ pathway_server <- function(id, language) {
   moduleServer(id, function(input, output, session) {
     
     # Preparation --------------------------------------------------------------
-    source("R/format_number.R")
+    source("../R/format_number.R")
     
-    dictionary <- read.csv('dictionary/dict_pathway.csv') %>%
+    dictionary <- read.csv('../dictionary/dict_pathway.csv') %>%
       split(.$key)
     
     # uses a reactiveVal language.
@@ -65,7 +65,7 @@ pathway_server <- function(id, language) {
     dims <- c("sex", "trade", "ind")
     # full <- download_data("37100205", dims) %>%
     # before release, use downloaded csv file 
-    full <- read_csv("data/pathway.csv",
+    full <- read_csv("../data/pathway.csv",
              col_types = cols_only(
                REF_DATE = col_integer(),
                dim_geo = col_integer(),

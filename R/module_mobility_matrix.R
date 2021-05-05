@@ -34,8 +34,8 @@ mob_matrix_server <- function(id, language, innerSize) {
 
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
-    source("R/download_data.R")
-    dictionary <- read.csv('dictionary/dict_mobility_matrix.csv') %>%
+    source("../R/download_data.R")
+    dictionary <- read.csv('../dictionary/dict_mobility_matrix.csv') %>%
       split(.$key)
     
     # uses a reactiveVal language.
@@ -48,7 +48,7 @@ mob_matrix_server <- function(id, language, innerSize) {
       # make it reactive, so it only downloads the data when the tab is selected
       # download_data("37100204", c("trad", "mode", "years", "type", "to")) %>%
       # before release, use downloaded csv file 
-      read_csv("data/mig_mat.csv", 
+      read_csv("../data/mig_mat.csv", 
         col_types = cols_only(
           REF_DATE = col_integer(),
           dim_geo = col_integer(),
@@ -65,7 +65,7 @@ mob_matrix_server <- function(id, language, innerSize) {
         filter(from != to)
     )
     # load in the meta data
-    meta <- read_csv("data/mobility_matrix_metadata.csv")
+    meta <- read_csv("../data/mobility_matrix_metadata.csv")
     
     # define region and colour of each region as named lists.
     region = setNames(meta$region, meta$code)
@@ -218,16 +218,6 @@ mob_matrix_server <- function(id, language, innerSize) {
       return(df)
       
       })
-
-    # output$outtable <- renderTable(
-    #   df()
-    # )    
-    # output$outtable <- renderText(
-    #   {if (input$all_regions) {
-    #     selected_region <- c(1:11)
-    #   } else {
-    #     selected_region <- as.numeric(input$sel_region)
-    #   }})
 
     output$outPlot <- renderPlot({
       req(df())

@@ -7,9 +7,9 @@ library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
-source("R/module_pathway.R")
-source("R/module_mobility_matrix.R")
-source("R/module_mobility_measure.R")
+source("../R/module_pathway.R")
+source("../R/module_mobility_matrix.R")
+source("../R/module_mobility_measure.R")
 
 navbarPageWithButton <- function(..., button) {
   navbar <- navbarPage(...)
@@ -30,13 +30,6 @@ ui <- bootstrapPage(
               Shiny.onInputChange("innerSize", Math.min(window.innerWidth * 0.65, window.innerHeight * 0.85));
             });
         ')),
-  
-  # fluidRow(
-  #   column(9, , offset=1),
-  #   
-  #   column(2, actionLink("change_lang",
-  #                        textOutput("other_lang")))
-  # ),
   
   navbarPageWithButton(
     
@@ -64,10 +57,8 @@ ui <- bootstrapPage(
 
 server <- function(input, output, session) {
   
-  language <- reactiveVal("fr")
-  # translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
-  # tr <- translator$tr
-  dictionary <- read.csv('dictionary/dict_main.csv') %>%
+  language <- reactiveVal("en") # default language
+  dictionary <- read.csv('../dictionary/dict_main.csv') %>%
     split(.$key)
   
   # uses a reactiveVal language.
