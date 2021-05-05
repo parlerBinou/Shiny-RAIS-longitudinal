@@ -3,7 +3,7 @@ library(plotly)
 library(tidyverse)
 library(shinydashboard)
 library(circlize)
-library(Cairo)
+# library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
@@ -26,19 +26,22 @@ ui <- bootstrapPage(
   navbarPage(
     
     title=NULL,
-    
+    id = "tabs",
     tabPanel(
       textOutput("title_pathway"),
-      pathway_ui("pathway")
+      pathway_ui("pathway"),
+      value = "tab_pathway"
     ), 
     
     tabPanel(
       textOutput("title_mob_measures"),
-      mob_measure_ui("mob_measure")
+      mob_measure_ui("mob_measure"),
+      value = "tab_measure"
     ),
     tabPanel(
       textOutput("title_mob_matrix"),
-      mob_matrix_ui("mob_matrix")
+      mob_matrix_ui("mob_matrix"),
+      value = "tab_matrix"
     )
     
   ) # navbar page
@@ -62,11 +65,21 @@ server <- function(input, output, session) {
   output$title_mob_measures <- renderText(tr("title_mob_measures"))
   output$title_mob_matrix <- renderText(tr("title_mob_matrix"))
   
+  # because of downloading and processing the data,
+  # initial loading takes quite some time.
+  # load required server only if a user click the tab
+  # pathway is the first tab, so always load.
   pathway_server("pathway", language)
+  # observe input$tabs, and launch the server for the selected app.
+  observeEvent(input$tabs, {
+    if(input$tabs == "tab_measure"){
+      mob_measure_server("mob_measure", language)    
+    } else if (input$tabs == "tab_matrix") {
+      mob_matrix_server("mob_matrix", language, reactive(input$innerSize))  
+    }
+    
+  })
   
-  mob_measure_server("mob_measure", language)
-  
-  mob_matrix_server("mob_matrix", language, reactive(input$innerSize))
   
 }
 

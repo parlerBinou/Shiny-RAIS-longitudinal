@@ -69,18 +69,18 @@ mob_measure_server <- function(id, language) {
     # load in the data file
     full <- reactive(
       # make it reactive, so it only downloads the data when the tab is selected
-      # download_data("37100205", c("trade", "mode", "years", "type", "ind")) %>%
+      download_data("37100205", c("trade", "mode", "years", "type", "ind")) %>%
       # before release, use downloaded csv file 
-      read_csv("data/mobility_measures.csv",
-               col_types = cols_only(
-                 REF_DATE = col_integer(),
-                 dim_geo = col_integer(),
-                 dim_trade = col_integer(),
-                 dim_mode = col_integer(),
-                 dim_years = col_integer(),
-                 dim_type = col_integer(),
-                 dim_ind = col_integer(),
-                 VALUE = col_double())) %>% 
+      # read_csv("data/mobility_measures.csv",
+      #          col_types = cols_only(
+      #            REF_DATE = col_integer(),
+      #            dim_geo = col_integer(),
+      #            dim_trade = col_integer(),
+      #            dim_mode = col_integer(),
+      #            dim_years = col_integer(),
+      #            dim_type = col_integer(),
+      #            dim_ind = col_integer(),
+      #            VALUE = col_double())) %>% 
       pivot_wider(id_cols=c(REF_DATE, dim_geo, dim_trade, dim_mode, dim_years, dim_type),
                   names_from=dim_ind, values_from=VALUE, names_prefix = "ind") %>%
       subset(!is.na(ind3)) %>% # remove if taxfilers is missing

@@ -46,18 +46,18 @@ mob_matrix_server <- function(id, language, innerSize) {
     # load in the data file
     full <- reactive(
       # make it reactive, so it only downloads the data when the tab is selected
-      # download_data("37100204", c("trad", "mode", "years", "type", "to")) %>%
+      download_data("37100204", c("trad", "mode", "years", "type", "to")) %>%
       # before release, use downloaded csv file 
-      read_csv("data/mig_mat.csv", 
-        col_types = cols_only(
-          REF_DATE = col_integer(),
-          dim_geo = col_integer(),
-          dim_trad = col_integer(),
-          dim_mode = col_integer(),
-          dim_years = col_integer(),
-          dim_type = col_integer(),
-          dim_to = col_integer(),
-          VALUE = col_number())) %>% 
+      # read_csv("data/mig_mat.csv", 
+      #   col_types = cols_only(
+      #     REF_DATE = col_integer(),
+      #     dim_geo = col_integer(),
+      #     dim_trad = col_integer(),
+      #     dim_mode = col_integer(),
+      #     dim_years = col_integer(),
+      #     dim_type = col_integer(),
+      #     dim_to = col_integer(),
+      #     VALUE = col_number())) %>% 
         rename(from = dim_geo, to = dim_to) %>%
         as.data.frame() %>%
         filter(!is.na(VALUE) & VALUE > 0 & to > 4) %>%
