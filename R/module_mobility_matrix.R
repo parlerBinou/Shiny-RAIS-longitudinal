@@ -44,9 +44,8 @@ mob_matrix_server <- function(id, language, innerSize) {
     }
     
     # load in the data file
-    full <- reactive(
-      # make it reactive, so it only downloads the data when the tab is selected
-      download_data("37100204", c("trad", "mode", "years", "type", "to")) %>%
+    full <- download_data(
+      "37100204", c("trad", "mode", "years", "type", "to")) %>%
       # before release, use downloaded csv file 
       # read_csv("data/mig_mat.csv", 
       #   col_types = cols_only(
@@ -63,7 +62,7 @@ mob_matrix_server <- function(id, language, innerSize) {
         filter(!is.na(VALUE) & VALUE > 0 & to > 4) %>%
         mutate(to = to - 4) %>%
         filter(from != to)
-    )
+    
     # load in the meta data
     meta <- read_csv("data/mobility_matrix_metadata.csv")
     
@@ -74,10 +73,7 @@ mob_matrix_server <- function(id, language, innerSize) {
     # to make the cohort selection persistent even if input$time changed,
     # define it as a reactiveVal.
     # initialize it with the most recent available cohort.
-    # because full() itself is a reactive object, isolate it to initialize.
-    selected_cohort <- reactiveVal(
-      isolate(max(full()$REF_DATE))
-    )
+    selected_cohort <- reactiveVal(max(full$REF_DATE))
     
     # get the selected cohort value and update selected_cohort.
     get_cohort <- function() {
@@ -117,7 +113,7 @@ mob_matrix_server <- function(id, language, innerSize) {
     last_yr <- reactive({
       req(input$time)
       
-      last_year <- full() %>%
+      last_year <- full %>%
         filter(dim_years == input$time) %>%
         pull(REF_DATE) %>%
         max()
@@ -204,7 +200,7 @@ mob_matrix_server <- function(id, language, innerSize) {
       #   selected_region <- as.numeric(input$sel_region)
       # }
       # 
-      df <- full() %>%
+      df <- full %>%
         subset(
           REF_DATE == input$year &
             dim_trad == input$trade &

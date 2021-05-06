@@ -67,9 +67,8 @@ mob_measure_server <- function(id, language) {
     })
     
     # load in the data file
-    full <- reactive(
-      # make it reactive, so it only downloads the data when the tab is selected
-      download_data("37100205", c("trade", "mode", "years", "type", "ind")) %>%
+    full <- download_data(
+      "37100205", c("trade", "mode", "years", "type", "ind")) %>%
       # before release, use downloaded csv file 
       # read_csv("data/mobility_measures.csv",
       #          col_types = cols_only(
@@ -85,7 +84,6 @@ mob_measure_server <- function(id, language) {
                   names_from=dim_ind, values_from=VALUE, names_prefix = "ind") %>%
       subset(!is.na(ind3)) %>% # remove if taxfilers is missing
       as.data.frame()
-    )
     
     # time (year after certification)
     output$time_control <- renderUI({
@@ -104,7 +102,7 @@ mob_measure_server <- function(id, language) {
     last_yr <- reactive({
       req(input$time)
       
-      last_year <- full() %>%
+      last_year <- full %>%
         filter(dim_years == input$time) %>%
         pull(REF_DATE) %>%
         max()
@@ -113,10 +111,7 @@ mob_measure_server <- function(id, language) {
     # to make the cohort selection persistent even if input$time changed,
     # define it as a reactiveVal.
     # initialize it with the most recent available cohort.
-    # because full() itself is a reactive object, isolate it to initialize.
-    selected_cohort <- reactiveVal(
-      isolate(max(full()$REF_DATE))
-    )
+    selected_cohort <- reactiveVal(max(full$REF_DATE))
     
     # get the selected cohort value and update selected_cohort.
     get_cohort <- function() {
@@ -250,7 +245,7 @@ mob_measure_server <- function(id, language) {
     
     df <- reactive({
       req(input$geo, input$year, input$trade)
-      df <- full() %>%
+      df <- full %>%
         subset(
           REF_DATE %in% c(min(input$year):max(input$year)) &
             dim_geo %in% input$geo &
