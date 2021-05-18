@@ -9,7 +9,9 @@ mob_matrix_ui <- function(id) {
       
       uiOutput(NS(id, "mode_control")),
       
-      uiOutput(NS(id, "type_control"))#,
+      uiOutput(NS(id, "type_control")),
+      
+      uiOutput(NS(id, "region_selection"))
       
       # uiOutput(NS(id, "all_regions")),
       # 
@@ -46,17 +48,7 @@ mob_matrix_server <- function(id, language, innerSize) {
     # load in the data file
     full <- download_data(
       "37100204", c("trad", "mode", "years", "type", "to")) %>%
-      # before release, use downloaded csv file 
-      # read_csv("data/mig_mat.csv", 
-      #   col_types = cols_only(
-      #     REF_DATE = col_integer(),
-      #     dim_geo = col_integer(),
-      #     dim_trad = col_integer(),
-      #     dim_mode = col_integer(),
-      #     dim_years = col_integer(),
-      #     dim_type = col_integer(),
-      #     dim_to = col_integer(),
-      #     VALUE = col_number())) %>% 
+    # full <- readRDS("data/mobility_matrix.Rds") %>% # use downloaded Rds file - much faster
         rename(from = dim_geo, to = dim_to) %>%
         as.data.frame() %>%
         filter(!is.na(VALUE) & VALUE > 0 & to > 4) %>%
@@ -161,69 +153,40 @@ mob_matrix_server <- function(id, language, innerSize) {
         selected = 1
       )
     })
-    # 
-    # output$all_regions <- renderUI({
-    #   checkboxInput(
-    #     inputId = NS(id, "all_regions"),
-    #     label = "All regions",
-    #     value = TRUE)
-    # })
-    # 
-    # region, only appears on the screen if 'all region' is ticked off
-    # no default value is provided
-    # show_region_selection <- reactive(
-    #   req(input$all_regions)
-    #   
-    #   (!input$all_regions))
-
-    # output$region_selection <- renderUI({
-    #   # req(show_region_selection)
-    #   # if (show_region_selection()) {
-    #     selectizeInput(
-    #       inputId = NS(id, "sel_region"),
-    #       label = NULL,
-    #       choices = setNames(c("", 1:11), tr("mem_geo")),
-    #       selected = NULL
-    #     )
-    #   # }
-    # })
     
-    # outputOptions(output, "region_selection", suspendWhenHidden = FALSE)
+    output$region_selection <- renderUI({
+      pickerInput(
+          inputId = NS(id, "region"),
+          label = tr("lab_geo"),
+          choices = setNames(c(1:11), tr("mem_geo")),
+          options = list(
+            'actions-box' = TRUE,
+            'deselect-all-text' = tr("text_select_none"),
+            'select-all-text' = tr("text_select_all"),
+            'none-selected-text' = tr("text_when_none")
+          ),
+          selected = c(1:11),
+          multiple = TRUE
+        )
+    })
     
     df <- reactive({
-      req(input$year, input$trade, input$mode, input$time, input$type)#,
-      #    input$all_regions, input$sel_region)
+      req(input$year, input$trade, input$mode, input$time, input$type)
       
-      # if (input$all_regions) {
-      #   selected_region <- c(1:11)
-      # } else {
-      #   selected_region <- as.numeric(input$sel_region)
-      # }
-      # 
       df <- full %>%
         subset(
           REF_DATE == input$year &
             dim_trad == input$trade &
             dim_mode == input$mode &
             dim_years == input$time &
-            dim_type == input$type, #&
-            #(from %in% selected_region | to %in% selected_region),
+            dim_type == input$type &
+            (from %in% input$region | to %in% input$region),
           select = c(from, to, VALUE)
         )
       
       return(df)
       
       })
-
-    # output$outtable <- renderTable(
-    #   df()
-    # )    
-    # output$outtable <- renderText(
-    #   {if (input$all_regions) {
-    #     selected_region <- c(1:11)
-    #   } else {
-    #     selected_region <- as.numeric(input$sel_region)
-    #   }})
 
     output$outPlot <- renderPlot({
       req(df())
@@ -235,14 +198,6 @@ mob_matrix_server <- function(id, language, innerSize) {
         abbr <- meta$pr_fr
       }
 
-      # req(input$all_regions) 
-      # if (input$all_regions == FALSE) {
-      #   req(input$sel_region, cancelOutput = TRUE)
-      #   selected_region <- as.numeric(input$sel_region)
-      #   df <- df %>%
-      #     subset(from %in% selected_region | to %in% selected_region)
-      # }
-      
       # check if there are data points left after the filtering.
       validate(need(nrow(df()) > 0, message = tr("text_no_data")))
       
@@ -286,19 +241,20 @@ mob_matrix_server <- function(id, language, innerSize) {
           xx = get.cell.meta.data("xlim")
           circos.text(
             x = mean(xx),
-            y = 0.3,
+            y = 0.15,
             labels = s,
-            cex = 1.2,
+            cex = 1.3,
             adj = c(0, 0.5),
             facing = "clockwise",
             niceFacing = TRUE
           )
           circos.axis(
             h = "bottom",
-            labels.cex = 0.6,
-            labels.pos.adjust = TRUE,
-            labels.facing = "outside",
-            labels.niceFacing = TRUE
+            labels = FALSE # remove the tick labels (number)
+            # labels.cex = 1.0,
+            # labels.pos.adjust = TRUE,
+            # labels.facing = "outside",
+            # labels.niceFacing = TRUE
           )
         }
       )
