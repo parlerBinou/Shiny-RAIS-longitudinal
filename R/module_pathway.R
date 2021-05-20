@@ -29,7 +29,7 @@ pathway_ui <- function(id) {
       
       # tableOutput(NS(id, "outtable")),
       fillRow(
-        plotlyOutput(NS(id, "outBarChart")),
+        plotlyOutput(NS(id, "outBarChart"), height = "550px"),
         width = "100%"
       )
     )
@@ -63,8 +63,10 @@ pathway_server <- function(id, language) {
 
     #  Data processing----------------------------------------------------------
     dims <- c("sex", "trade", "ind")
-    full <- download_data("37100193", dims) %>%
-    # before release, use downloaded csv file 
+    # full <- download_data("37100193", dims) %>%
+    # to use pre-downloaded Rds file
+    full <- readRDS("data/pathway.Rds") %>%
+    # to use pre-downloaded csv file 
     # full <- read_csv("data/pathway.csv",
     #          col_types = cols_only(
     #            REF_DATE = col_integer(),
@@ -75,12 +77,11 @@ pathway_server <- function(id, language) {
     #            VALUE = col_double(),
     #            STATUS = col_character(),
     #            SYMBOL = col_character())) %>% 
-    
     mutate(flag = paste(
       ifelse(is.na(STATUS) | STATUS == "..", " ", STATUS),
       ifelse(is.na(SYMBOL), " ", SYMBOL))) %>%
       pivot_wider(id_cols=c(REF_DATE, dim_geo, dim_sex, dim_trade),
-                  names_from=dim_ind, values_from=c(VALUE, flag)) %>%
+                  names_from=dim_ind, values_from=c(VALUE, STATUS, flag)) %>%
       subset(REF_DATE <= (max(.$REF_DATE) - 4)) %>% # keep only if they are at least 4 years old
       as.data.frame() %>%
       mutate(
@@ -95,11 +96,12 @@ pathway_server <- function(id, language) {
         age_cert20 = as.integer(VALUE_21), # Median age at certification (within 2 times program duration)
         
         cohort_flag = flag_1,
-        durpgm_flag = flag_2,        
-        age_reg_flag = flag_3        
+        cohort_stat = STATUS_1,
+        durpgm_flag = flag_2, 
+        durpgm_stat = STATUS_2,
+        age_reg_flag = flag_3,
+        age_reg_stat = STATUS_3
       )
-    
-    
     
     #  sidebar widgets----------------------------------------------------------
     # the most recent year (cohort) is used to define the range of
@@ -197,11 +199,15 @@ pathway_server <- function(id, language) {
       if (input$direc == 1) {
         multi_selection <- TRUE
         default_selection <- c(1:3,29,30,36,37)
-        options_set = pickerOptions(actionsBox = TRUE, selectAllText = tr("sAll_lbl"), deselectAllText = tr("dsAll_lbl"))
+        options_set <- pickerOptions(
+          actionsBox = TRUE,
+          selectAllText = tr("sAll_lbl"),
+          deselectAllText = tr("dsAll_lbl"),
+          noneSelectedText = tr("text_no_trade"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
-        options_set = NULL
+        options_set <- NULL
       }
       
       pickerInput(
@@ -221,16 +227,23 @@ pathway_server <- function(id, language) {
       if (input$direc == 2) {
         multi_selection <- TRUE
         default_selection <- c(1:2,7:12)
+        options_set <- pickerOptions(
+          actionsBox = TRUE,
+          selectAllText = tr("sAll_lbl"),
+          deselectAllText = tr("dsAll_lbl"),
+          noneSelectedText = tr("text_no_geo"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
+        options_set <- NULL
       }
       pickerInput(
         inputId = NS(id, "geo"),
         label = tr("lab_geo"),
         choices = setNames(c(1:13), tr("mem_geo")),
         multiple = multi_selection,
-        selected = default_selection
+        selected = default_selection,
+        options = options_set
       )  
     
     })
@@ -248,19 +261,34 @@ pathway_server <- function(id, language) {
     #  create plotly chat-------------------------------------------------------
     
     df <- reactive({
-      req(input$geo, input$year, input$trade, input$times, input$direc)
+      req(input$year, input$times, input$direc)
       
       selected_year <- if (input$direc == 3) {
         c(min(input$year):max(input$year))
       } else {
         input$year
       }
+      
+      # when nothing is selected because of the 'unselect all' button,
+      # behave as if the default options are selected.
+      if (is.null(input$trade)) {
+        selected_trades <- c(1:3,29,30,36,37)
+      } else {
+        selected_trades <- input$trade    
+      }
+      
+      if (is.null(input$geo)) {
+        selected_geo <- c(1:2,7:12)
+      } else {
+        selected_geo <- input$geo
+      }
+      
       df <- full %>%
         subset(
           REF_DATE %in% selected_year &
-            dim_geo %in% input$geo &
+            dim_geo %in% selected_geo &
             dim_sex == input$sex &
-            dim_trade %in% input$trade) %>%
+            dim_trade %in% selected_trades) %>%
         arrange(dim_geo, dim_trade, desc(REF_DATE)) %>%
         mutate(
           supp = c(1:max(nrow(.), 1)),
@@ -273,48 +301,66 @@ pathway_server <- function(id, language) {
           rename(
             cert = VALUE_4,
             cert_flag = flag_4,
+            cert_stat = STATUS_4,
             cont = VALUE_5,
             cont_flag = flag_5,
+            cont_stat = STATUS_5,
             disc = VALUE_6,
             disc_flag = flag_6,
+            disc_stat = STATUS_6,
             time_cert = VALUE_7,
             time_cert_flag = flag_7,
+            time_cert_stat = STATUS_7,
             time_disc = time_disc10,
             time_disc_flag = flag_8,
+            time_disc_stat = STATUS_8,
             age_cert = age_cert10,
-            age_cert_flag = flag_9
+            age_cert_flag = flag_9,
+            age_cert_stat = STATUS_9
           )
       } else if (input$times == 2) {
         df <- df %>%
           rename(
             cert = VALUE_10,
             cert_flag = flag_10,
+            cert_stat = STATUS_10,
             cont = VALUE_11,
             cont_flag = flag_11,
+            cont_stat = STATUS_11,
             disc = VALUE_12,
             disc_flag = flag_12,
+            disc_stat = STATUS_12,
             time_cert = VALUE_13,
             time_cert_flag = flag_13,
+            time_cert_stat = STATUS_13,
             time_disc = time_disc15,
             time_disc_flag = flag_14,
+            time_disc_stat = STATUS_14,
             age_cert = age_cert15,
-            age_cert_flag = flag_15
+            age_cert_flag = flag_15,
+            age_cert_stat = STATUS_15
           )
       } else {
         df <- df %>%
           rename(
             cert = VALUE_16,
             cert_flag = flag_16,
+            cert_stat = STATUS_16,
             cont = VALUE_17,
             cont_flag = flag_17,
+            cont_stat = STATUS_17,
             disc = VALUE_18,
             disc_flag = flag_18,
+            disc_stat = STATUS_18,
             time_cert = VALUE_19,
             time_cert_flag = flag_19,
+            time_cert_stat = STATUS_19,
             time_disc = time_disc20,
             time_disc_flag = flag_20,
+            time_disc_stat = STATUS_20,
             age_cert = age_cert20,
-            age_cert_flag = flag_21
+            age_cert_flag = flag_21,
+            age_cert_stat = STATUS_21
           )
       }
     })
@@ -327,10 +373,10 @@ pathway_server <- function(id, language) {
       
 
       # check if there are data points left after the filtering.
-      validate(need(all(
-        c(df()$cert_flag == "F  ",df()$cont_flag == "F  ",df()$disc_flag == "F  ")
-        ) == FALSE, message = tr("f_mesg") ))      
-      
+      # validate(need(all(
+      #   c(df()$cert_flag == "F  ",df()$cont_flag == "F  ",df()$disc_flag == "F  ")
+      #   ) == FALSE, message = tr("f_mesg") ))      
+      # 
       validate(need(all(is.na(c(df()$cert,df()$cont,df()$disc))) == FALSE, message = tr("mesg_val") ))
       
            
@@ -431,73 +477,79 @@ pathway_server <- function(id, language) {
         icon = "toolbox")
     })
     
+    value_status_flag <- function(value, status, flag) {
+      if (is.na(value)) {
+        status
+      } else {
+        HTML(
+          paste0(
+            format_number(
+              value, locale = language()),
+            "<sup>", flag,
+            "</sup>", collapse = NULL))
+      }
+    }
+
     output$vbox_cohort <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(
-            str_replace_na(        
-              format_number(
-                df()$cohort[df()$supp == selected_supp()], locale = language()),replacement=''),
-            "<sup>", df()$cohort_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
+        value_status_flag(
+          df()$cohort[df()$supp == selected_supp()],
+          df()$cohort_stat[df()$supp == selected_supp()],
+          df()$cohort_flag[df()$supp == selected_supp()]
+        ),
         tr("cohort"), icon = "users", size = "small")
     })
-    
+
     output$vbox_age_reg <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(
-            str_replace_na(        
-              df()$age_reg[df()$supp == selected_supp()],replacement=''),
-            "<sup>", df()$age_reg_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
-        tr("age_reg"), size = "small",
-        icon = "flag")
+        value_status_flag(
+          df()$age_reg[df()$supp == selected_supp()],
+          df()$age_reg_stat[df()$supp == selected_supp()],
+          df()$age_reg_flag[df()$supp == selected_supp()]
+        ),
+        tr("age_reg"), size = "small", icon = "flag")
     })
     
     output$vbox_time_cert <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(
-            str_replace_na(
-              format_number(
-                df()$time_cert[df()$supp == selected_supp()],
-                locale = language()), replacement=''),
-            "<sup>", df()$time_cert_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
+        value_status_flag(
+          df()$time_cert[df()$supp == selected_supp()],
+          df()$time_cert_stat[df()$supp == selected_supp()],
+          df()$time_cert_flag[df()$supp == selected_supp()]
+        ),
         tr("time_cert"), size = "small",
         icon = "calendar-check")
     })
     
     output$vbox_durpgm <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(        
-            str_replace_na(df()$durpgm[df()$supp == selected_supp()], replacement=''),
-            "<sup>", df()$durpgm_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
+        value_status_flag(
+          df()$durpgm[df()$supp == selected_supp()],
+          df()$durpgm_stat[df()$supp == selected_supp()],
+          df()$durpgm_flag[df()$supp == selected_supp()]
+        ),
         tr("dur_pgm"), size = "small",
         icon ="hourglass-half")
     })
     
     output$vbox_age_cert <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(
-            str_replace_na(df()$age_cert[df()$supp == selected_supp()], replacement=''),
-            "<sup>", df()$age_cert_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
+        value_status_flag(
+          df()$age_cert[df()$supp == selected_supp()],
+          df()$age_cert_stat[df()$supp == selected_supp()],
+          df()$age_cert_flag[df()$supp == selected_supp()]
+        ),
         tr("age_cert"), size = "small",
         icon = "award")
     })
     
     output$vbox_time_disc <- renderValueBox({
       my_valueBox(
-        HTML(
-          paste0(
-            str_replace_na(df()$time_disc[df()$supp == selected_supp()], replacement=''),
-            "<sup>", df()$time_disc_flag[df()$supp == selected_supp()],
-            "</sup>", collapse = NULL)),
+        value_status_flag(
+          df()$time_disc[df()$supp == selected_supp()],
+          df()$time_disc_stat[df()$supp == selected_supp()],
+          df()$time_disc_flag[df()$supp == selected_supp()]
+        ),
         tr("time_disc"), size = "small",
         icon = "calendar-times")
     })

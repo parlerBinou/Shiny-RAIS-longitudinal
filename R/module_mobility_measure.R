@@ -38,7 +38,7 @@ mob_measure_ui <- function(id) {
       
       #tableOutput(NS(id, "outtable")),
       fillRow(
-        plotlyOutput(NS(id, "outPlot")),
+        plotlyOutput(NS(id, "outPlot"), height = "550px"),
         width = "100%"
       )
     )
@@ -67,19 +67,21 @@ mob_measure_server <- function(id, language) {
     })
     
     # load in the data file
-    full <- download_data(
-      "37100205", c("trade", "mode", "years", "type", "ind")) %>%
-      # before release, use downloaded csv file 
-      # read_csv("data/mobility_measures.csv",
-      #          col_types = cols_only(
-      #            REF_DATE = col_integer(),
-      #            dim_geo = col_integer(),
-      #            dim_trade = col_integer(),
-      #            dim_mode = col_integer(),
-      #            dim_years = col_integer(),
-      #            dim_type = col_integer(),
-      #            dim_ind = col_integer(),
-      #            VALUE = col_double())) %>% 
+    # full <- download_data(
+    #   "37100205", c("trade", "mode", "years", "type", "ind")) %>%
+    # to use pre-downloaded Rds file
+    full <- readRDS("data/mobility_measures.Rds") %>%
+    # to use pre-downloaded csv file 
+    # read_csv("data/mobility_measures.csv",
+    #          col_types = cols_only(
+    #            REF_DATE = col_integer(),
+    #            dim_geo = col_integer(),
+    #            dim_trade = col_integer(),
+    #            dim_mode = col_integer(),
+    #            dim_years = col_integer(),
+    #            dim_type = col_integer(),
+    #            dim_ind = col_integer(),
+    #            VALUE = col_double())) %>% 
       pivot_wider(id_cols=c(REF_DATE, dim_geo, dim_trade, dim_mode, dim_years, dim_type),
                   names_from=dim_ind, values_from=VALUE, names_prefix = "ind") %>%
       subset(!is.na(ind3)) %>% # remove if taxfilers is missing
@@ -171,16 +173,23 @@ mob_measure_server <- function(id, language) {
       if (input$comp == 1) {
         multi_selection <- TRUE
         default_selection <- c(1:11)
+        options_set <- pickerOptions(
+          actionsBox = TRUE,
+          selectAllText = tr("sAll_lbl"),
+          deselectAllText = tr("dsAll_lbl"),
+          noneSelectedText = tr("text_no_geo"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
+        options_set <- NULL
       }
       pickerInput(
         inputId = NS(id, "geo"),
         label = tr("lab_geo"),
         choices = setNames(c(1:12), tr("mem_geo")),
         multiple = multi_selection,
-        selected = default_selection
+        selected = default_selection,
+        options = options_set
       )  
     })
     
@@ -196,11 +205,15 @@ mob_measure_server <- function(id, language) {
       if (input$comp == 2) {
         multi_selection <- TRUE
         default_selection <- c(1:3,19,20)
-        options_set = pickerOptions(actionsBox = TRUE, selectAllText = tr("sAll_lbl"), deselectAllText = tr("dsAll_lbl"))
+        options_set <- pickerOptions(
+          actionsBox = TRUE,
+          selectAllText = tr("sAll_lbl"),
+          deselectAllText = tr("dsAll_lbl"),
+          noneSelectedText = tr("text_no_trade"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
-        options_set = NULL
+        options_set <- NULL
       }
       
       pickerInput(
@@ -247,12 +260,24 @@ mob_measure_server <- function(id, language) {
     # creating outputs
     
     df <- reactive({
-      req(input$geo, input$year, input$trade)
+      req(input$year)
+      
+      if (is.null(input$trade)) {
+        selected_trades <- c(1:3,19,20)
+      } else { 
+        selected_trades <- input$trade}
+      
+      if (is.null(input$geo)) {
+        selected_geo <- c(1:11)
+      } else {
+        selected_geo <- input$geo
+      }
+      
       df <- full %>%
         subset(
           REF_DATE %in% c(min(input$year):max(input$year)) &
-            dim_geo %in% input$geo &
-            dim_trade %in% input$trade &
+            dim_geo %in% selected_geo &
+            dim_trade %in% selected_trades &
             dim_mode == input$mode &
             dim_years == input$time &
             dim_type == input$type) %>%
@@ -286,7 +311,7 @@ mob_measure_server <- function(id, language) {
         
         fig <- plot_ly(
           x = df()$ind11, y = df()$supp, name = tr("net"), type = "bar",
-          text = net_text, orientation = "h", marker = list(color = '66c2a5'),
+          text = net_text, orientation = "h", marker = list(color = '332288'),
           hovertemplate = "%{y}: %{text}%",
           source = "mm",
           # when comparing across geography and Canada is selected, show
@@ -295,12 +320,12 @@ mob_measure_server <- function(id, language) {
           visible = ifelse(
             (input$comp == 2 & input$geo == 1), "legendonly", TRUE)) %>%
           add_trace(x = df()$ind9, name = tr("in"), type = "bar",
-                    text = in_text, marker = list(color = 'fc8d62'),
+                    text = in_text, marker = list(color = '117733'),
                     visible = ifelse(
                       (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>%
           add_trace(x = df()$ind10, name = tr("out"), type = "bar",
-                    text = out_text, marker = list(color = '8da0cb'),
+                    text = out_text, marker = list(color = '882255'),
                     visible = ifelse(
                       (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>% 
@@ -340,16 +365,16 @@ mob_measure_server <- function(id, language) {
         fig <- plot_ly(
           x = df()$supp, y = net_measure, name = tr("net"), type = "bar",
           text = net_text, hovertemplate = hover_template, source = "mm",
-          marker = list(color = '66c2a5'),
+          marker = list(color = '332288'),
           visible = ifelse(
             (input$geo == 1), "legendonly", TRUE)
           ) %>%
           add_trace(y = in_measure, name = tr("in"), type = "bar",
-                    text = in_text, marker = list(color = 'fc8d62'),
+                    text = in_text, marker = list(color = '117733'),
                     visible = ifelse(
                       (input$geo == 1), TRUE, "legendonly")) %>%
           add_trace(y = out_measure, name = tr("out"), type = "bar",
-                    text = out_text, marker = list(color = '8da0cb'),
+                    text = out_text, marker = list(color = '882255'),
                     visible = ifelse(
                       (input$geo == 1), TRUE, "legendonly")) %>%
           layout(
@@ -360,8 +385,8 @@ mob_measure_server <- function(id, language) {
             xaxis = list(
               ticktext = df()$label3,
               tickvals = df()$supp,
-              autorange = "reversed"
-            ))
+              autorange = "reversed")
+            )
 
       }
     })

@@ -46,9 +46,9 @@ mob_matrix_server <- function(id, language, innerSize) {
     }
     
     # load in the data file
-    full <- download_data(
-      "37100204", c("trad", "mode", "years", "type", "to")) %>%
-    # full <- readRDS("data/mobility_matrix.Rds") %>% # use downloaded Rds file - much faster
+    # full <- download_data(
+    #   "37100204", c("trad", "mode", "years", "type", "to")) %>%
+    full <- readRDS("data/mobility_matrix.Rds") %>% # use downloaded Rds file - much faster
         rename(from = dim_geo, to = dim_to) %>%
         as.data.frame() %>%
         filter(!is.na(VALUE) & VALUE > 0 & to > 4) %>%
@@ -173,6 +173,12 @@ mob_matrix_server <- function(id, language, innerSize) {
     df <- reactive({
       req(input$year, input$trade, input$mode, input$time, input$type)
       
+      if (is.null(input$region)) {
+        selected_region <- c(1:11)
+      } else {
+        selected_region <- input$region
+      }
+      
       df <- full %>%
         subset(
           REF_DATE == input$year &
@@ -180,7 +186,7 @@ mob_matrix_server <- function(id, language, innerSize) {
             dim_mode == input$mode &
             dim_years == input$time &
             dim_type == input$type &
-            (from %in% input$region | to %in% input$region),
+            (from %in% selected_region | to %in% selected_region),
           select = c(from, to, VALUE)
         )
       
