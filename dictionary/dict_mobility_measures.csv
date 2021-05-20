@@ -62,3 +62,6 @@ mem_comp,Trades,Métiers
 mem_comp,Year of certification,Année d'obtention du certificat
 mem_unit,Number,Nombre
 mem_unit,Percentage,Pourcentage
+sAll_lbl,Select All,Sélectionnez tout
+dsAll_lbl,Deselect All,Désélectionner tout
+f_mesg,Data is too unreliable to be published,Les données sont trop peu fiable pour être publié
