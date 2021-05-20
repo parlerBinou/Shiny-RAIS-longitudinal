@@ -1,4 +1,4 @@
-[(Français)](#le-nom-du-projet)
+[(Français)](#indicateurs-longitudinaux-des-apprentis-canadiens)
 
 ## Canadian apprenticeship longitudinal indicators
 
