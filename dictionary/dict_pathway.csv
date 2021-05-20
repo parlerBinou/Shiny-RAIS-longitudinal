@@ -77,3 +77,6 @@ mesg_val,Data is not available yet.,Les données ne sont pas encore disponibles.
 age_cert,Median age at certification,Âge médian lors de l'obtention du certificat
 time_cert,Median time to certification,Délai médian d'obtention de la certification
 time_disc,Median time to discontinuation,Délai médian d'abandon
+sAll_lbl,Select All,Sélectionnez tout
+dsAll_lbl,Deselect All,Désélectionner tout
+f_mesg,Data is too unreliable to be published,Les données sont trop peu fiable pour être publié
