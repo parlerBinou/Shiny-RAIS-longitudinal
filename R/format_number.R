@@ -11,8 +11,13 @@ format_number <- function(number, in_bracket = NULL, in_bracket_percent = TRUE, 
     d_delim <- "."
   }
   
-  out <- prettyNum(number, big.mark=k_delim, decimal.mark=d_delim, 
-                                scientific=FALSE)
+  if(is.na(number)){
+    out <- NA
+  } 
+  else {
+    out <- prettyNum(number, big.mark=k_delim, decimal.mark=d_delim, 
+                     scientific=FALSE)
+  }
   
   if (!is.null(in_bracket)) {
     formatted_in_bracket <- prettyNum(in_bracket, big.mark=k_delim,
