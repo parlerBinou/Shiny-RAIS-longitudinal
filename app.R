@@ -11,6 +11,14 @@ source("R/module_pathway.R")
 source("R/module_mobility_matrix.R")
 source("R/module_mobility_measure.R")
 
+navbarPageWithButton <- function(..., button) {
+  navbar <- navbarPage(...)
+  div <- tags$div(class = "navbar-form", style = 'float: right; margin-top: 15px;', button)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], div)
+  navbar
+}
+
 ui <- bootstrapPage(
   
   tags$head(
@@ -23,7 +31,7 @@ ui <- bootstrapPage(
             });
         ')),
   
-  navbarPage(
+  navbarPageWithButton(
     
     title=NULL,
     
@@ -39,7 +47,8 @@ ui <- bootstrapPage(
     tabPanel(
       textOutput("title_mob_matrix"),
       mob_matrix_ui("mob_matrix")
-    )
+    ),
+    button = actionLink("change_lang", textOutput("other_lang"))
     
   ) # navbar page
 ) # bootstrap page
@@ -48,6 +57,15 @@ ui <- bootstrapPage(
 server <- function(input, output, session) {
   
   language <- reactiveVal("fr")
+  
+  output$other_lang <- renderText({
+    if (language() == "en") {"Français"} else {"English"}
+  })
+  
+  observeEvent(input$change_lang, {
+    if (language() == "en") {language("fr")} else {language("en")}
+  })
+  
   # translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
   # tr <- translator$tr
   dictionary <- read.csv('dictionary/dict_main.csv') %>%
