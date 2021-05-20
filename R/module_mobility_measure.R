@@ -196,9 +196,11 @@ mob_measure_server <- function(id, language) {
       if (input$comp == 2) {
         multi_selection <- TRUE
         default_selection <- c(1:3,19,20)
+        options_set = pickerOptions(actionsBox = TRUE, selectAllText = tr("sAll_lbl"), deselectAllText = tr("dsAll_lbl"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
+        options_set = NULL
       }
       
       pickerInput(
@@ -206,7 +208,8 @@ mob_measure_server <- function(id, language) {
         label = tr("lab_trade"),
         choices = choice_set,
         multiple = multi_selection,
-        selected = default_selection
+        selected = default_selection,
+        options = options_set
       ) 
     })
     
