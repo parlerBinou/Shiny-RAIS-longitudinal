@@ -62,12 +62,12 @@ server <- function(input, output, session) {
   output$title_mob_measures <- renderText(tr("title_mob_measures"))
   output$title_mob_matrix <- renderText(tr("title_mob_matrix"))
   
+  # because of downloading and processing the data,
+  # initial loading takes quite some time.
   pathway_server("pathway", language)
-  
-  mob_measure_server("mob_measure", language)
-  
+  mob_measure_server("mob_measure", language)    
   mob_matrix_server("mob_matrix", language, reactive(input$innerSize))
-  
+
 }
 
 shinyApp(ui, server)

@@ -6,11 +6,11 @@
 
 my_valueBox <- function(value, subtitle, icon=NULL, color=NULL, size="normal") {
   if (size == "small") {
-    icon_size = "fa-lg"
+    icon_size = "font-size: 100%;"
     value_style = "font-size: 125%; font-weight: bold;"
     subtitle_style = "font-size: 100%;"
   } else {
-    icon_size = "fa-3x"
+    icon_size = "font-size: 175%;"
     value_style = "font-size: 150%; font-weight: bold;"
     subtitle_style = "font-size: 100%;"
   }
@@ -20,15 +20,10 @@ my_valueBox <- function(value, subtitle, icon=NULL, color=NULL, size="normal") {
           div(class = "panel-heading", style = "padding: 5px 10px;",
               style = paste0("background-color:", color),
               div(class = "row",
-                  div(class = "col-xs-12 text-left", style = "position: relative; left: 0; top: 0; z-index: 1;",
-                      div(style = (value_style),
-                          value),
-                      div(style = (subtitle_style),
-                          subtitle)),
-                  div(class = "col-xs-4 text-right",
-                      style = "position: absolute; right: 15px; top: 10px; z-index: 0;",
-                      icon(icon, icon_size))
-                  )
+                  div(class = "col-sm-9 text-left", style = value_style, value),
+                  div(class = "col-sm-3 text-right", style = icon_size, icon(icon))),
+              div(class = "row",
+                  div(class = "col-sm-12 text-left", style = subtitle_style, subtitle))
           )#,
           #div(class = "panel-footer",
           #    div(class = "clearfix")
