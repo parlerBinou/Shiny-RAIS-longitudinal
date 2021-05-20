@@ -75,9 +75,10 @@ pathway_server <- function(id, language) {
     #            VALUE = col_double(),
     #            STATUS = col_character(),
     #            SYMBOL = col_character())) %>% 
-      mutate(flag = paste(
-        ifelse(is.na(STATUS) | STATUS == "..", " ", STATUS),
-        ifelse(is.na(SYMBOL), " ", SYMBOL))) %>%
+    
+    mutate(flag = paste(
+      ifelse(is.na(STATUS) | STATUS == "..", " ", STATUS),
+      ifelse(is.na(SYMBOL), " ", SYMBOL))) %>%
       pivot_wider(id_cols=c(REF_DATE, dim_geo, dim_sex, dim_trade),
                   names_from=dim_ind, values_from=c(VALUE, flag)) %>%
       subset(REF_DATE <= (max(.$REF_DATE) - 4)) %>% # keep only if they are at least 4 years old
@@ -91,8 +92,14 @@ pathway_server <- function(id, language) {
         time_disc15 = as.integer(VALUE_14), # Median time to discontinuation (within 1.5 times program duration)
         age_cert15 = as.integer(VALUE_15), # Median age at certification (within 1.5 times program duration)
         time_disc20 = as.integer(VALUE_20), # Median time to discontinuation (within 2 times program duration)
-        age_cert20 = as.integer(VALUE_21) # Median age at certification (within 2 times program duration)
-        )
+        age_cert20 = as.integer(VALUE_21), # Median age at certification (within 2 times program duration)
+        
+        cohort_flag = flag_1,
+        durpgm_flag = flag_2,        
+        age_reg_flag = flag_3        
+      )
+    
+    
     
     #  sidebar widgets----------------------------------------------------------
     # the most recent year (cohort) is used to define the range of
@@ -128,13 +135,14 @@ pathway_server <- function(id, language) {
     observeEvent(input$year, get_cohort())
     # observe changes in input$time
     # if the stored value in selected_cohort is invalid, reset it.
-    observeEvent(input$time, {
+    observeEvent(input$times, {
       if (selected_cohort() > last_year()) {reset_cohort()}
     })
     
     
     # slider for "reference period"
     output$year_control <- renderUI({
+
       req(input$direc)
       if (input$direc == 3){
         # slide time range
@@ -189,9 +197,11 @@ pathway_server <- function(id, language) {
       if (input$direc == 1) {
         multi_selection <- TRUE
         default_selection <- c(1:3,29,30,36,37)
+        options_set = pickerOptions(actionsBox = TRUE, selectAllText = tr("sAll_lbl"), deselectAllText = tr("dsAll_lbl"))
       } else {
         multi_selection <- FALSE
         default_selection <- 1
+        options_set = NULL
       }
       
       pickerInput(
@@ -199,7 +209,8 @@ pathway_server <- function(id, language) {
         label = tr("lab_trade"),
         choices = choice_set,
         multiple = multi_selection,
-        selected = default_selection
+        selected = default_selection,
+        options = options_set
       ) 
     })
     
@@ -314,11 +325,15 @@ pathway_server <- function(id, language) {
     
     output$outBarChart <- renderPlotly({
       
+
       # check if there are data points left after the filtering.
-#      validate(need(nrow(df()) > 0, message = tr("text_no_data")))
+      validate(need(all(
+        c(df()$cert_flag == "F  ",df()$cont_flag == "F  ",df()$disc_flag == "F  ")
+        ) == FALSE, message = tr("f_mesg") ))      
+      
       validate(need(all(is.na(c(df()$cert,df()$cont,df()$disc))) == FALSE, message = tr("mesg_val") ))
       
-      
+           
       cert_text <- format_number(df()$cert, locale=language())
       cont_text <- format_number(df()$cont, locale=language())
       disc_text <- format_number(df()$disc, locale=language())
@@ -328,17 +343,17 @@ pathway_server <- function(id, language) {
         
         fig <- plot_ly(
           x = df()$cert, y = df()$supp, name = tr("rate_cert"), type = "bar",
-          orientation = "h", marker = list(color = '66c2a5'),
+          orientation = "h", marker = list(color = '332288'),
           text = paste0(cert_text, " % <sup>", df()$cert_flag, "</sup>"),
           source = "p",
           hovertemplate = "%{y}: %{text}") %>%
         add_trace(
           x = df()$cont, name = tr("rate_cont"),
           text = paste0(cont_text, " % <sup>", df()$cert_flag, "</sup>"),
-          marker = list(color = 'fc8d62')) %>%
+          marker = list(color = '117733')) %>%
         add_trace(
           x = df()$disc, name = tr("rate_disc"),
-          marker = list(color = '8da0cb'),
+          marker = list(color = '882255'),
           text = paste0(disc_text, " % <sup>", df()$disc_flag, "</sup>")) %>%
         layout(
           barmode = 'stack',
@@ -354,15 +369,15 @@ pathway_server <- function(id, language) {
       } else { #comparing over time
         fig <- plot_ly(
           x = df()$supp, y = df()$cert, name = tr("rate_cert"), type = "bar",
-          marker = list(color = '66c2a5'),
+          marker = list(color = '332288'),
           text = paste0(cert_text, " % <sup>", df()$cert_flag, "</sup>"),
           source = "p",
           hovertemplate = "%{x}:%{text}") %>%
           add_trace(
-            y = df()$cont, name = tr("rate_cont"), marker = list(color = 'fc8d62'),
+            y = df()$cont, name = tr("rate_cont"), marker = list(color = '117733'),
             text = paste0(cont_text, " % <sup>", df()$cert_flag, "</sup>")) %>%
           add_trace(
-            y = df()$disc, name = tr("rate_disc"), marker = list(color = '8da0cb'),
+            y = df()$disc, name = tr("rate_disc"), marker = list(color = '882255'),
             text = paste0(disc_text, " % <sup>", df()$disc_flag, "</sup>")) %>%
           layout(
             barmode = 'stack',
@@ -418,14 +433,24 @@ pathway_server <- function(id, language) {
     
     output$vbox_cohort <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$cohort[df()$supp == selected_supp()], locale = language()),
-          tr("cohort"), icon = "users", size = "small")
+        HTML(
+          paste0(
+            str_replace_na(        
+              format_number(
+                df()$cohort[df()$supp == selected_supp()], locale = language()),replacement=''),
+            "<sup>", df()$cohort_flag[df()$supp == selected_supp()],
+            "</sup>", collapse = NULL)),
+        tr("cohort"), icon = "users", size = "small")
     })
     
     output$vbox_age_reg <- renderValueBox({
       my_valueBox(
-        df()$age_reg[df()$supp == selected_supp()],
+        HTML(
+          paste0(
+            str_replace_na(        
+              df()$age_reg[df()$supp == selected_supp()],replacement=''),
+            "<sup>", df()$age_reg_flag[df()$supp == selected_supp()],
+            "</sup>", collapse = NULL)),
         tr("age_reg"), size = "small",
         icon = "flag")
     })
@@ -434,8 +459,10 @@ pathway_server <- function(id, language) {
       my_valueBox(
         HTML(
           paste0(
-            format_number(df()$time_cert[df()$supp == selected_supp()],
-                          locale = language()),
+            str_replace_na(
+              format_number(
+                df()$time_cert[df()$supp == selected_supp()],
+                locale = language()), replacement=''),
             "<sup>", df()$time_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
         tr("time_cert"), size = "small",
@@ -444,7 +471,11 @@ pathway_server <- function(id, language) {
     
     output$vbox_durpgm <- renderValueBox({
       my_valueBox(
-        df()$durpgm[df()$supp == selected_supp()],
+        HTML(
+          paste0(        
+            str_replace_na(df()$durpgm[df()$supp == selected_supp()], replacement=''),
+            "<sup>", df()$durpgm_flag[df()$supp == selected_supp()],
+            "</sup>", collapse = NULL)),
         tr("dur_pgm"), size = "small",
         icon ="hourglass-half")
     })
@@ -453,7 +484,7 @@ pathway_server <- function(id, language) {
       my_valueBox(
         HTML(
           paste0(
-            df()$age_cert[df()$supp == selected_supp()],
+            str_replace_na(df()$age_cert[df()$supp == selected_supp()], replacement=''),
             "<sup>", df()$age_cert_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
         tr("age_cert"), size = "small",
@@ -464,7 +495,7 @@ pathway_server <- function(id, language) {
       my_valueBox(
         HTML(
           paste0(
-            df()$time_disc[df()$supp == selected_supp()],
+            str_replace_na(df()$time_disc[df()$supp == selected_supp()], replacement=''),
             "<sup>", df()$time_disc_flag[df()$supp == selected_supp()],
             "</sup>", collapse = NULL)),
         tr("time_disc"), size = "small",
