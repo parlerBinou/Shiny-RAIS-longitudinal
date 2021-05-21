@@ -3,21 +3,13 @@ mob_measure_ui <- function(id) {
   sidebarLayout(
     sidebarPanel(
       uiOutput(NS(id, "comp_control")),
-      
       uiOutput(NS(id, "year_control")),
-      
       uiOutput(NS(id, "time_control")),
-      
       uiOutput(NS(id, "region_selection")),
-      
       uiOutput(NS(id, "trade_control")),
-      
       uiOutput(NS(id, "mode_control")),
-      
       uiOutput(NS(id, "type_control")),
-      
       uiOutput(NS(id, "unit_control"))
-
     ), 
     
     mainPanel(
@@ -35,7 +27,6 @@ mob_measure_ui <- function(id) {
         valueBoxOutput(NS(id, "vbox_in_measure")),
         valueBoxOutput(NS(id, "vbox_out_measure"))),
 
-      
       #tableOutput(NS(id, "outtable")),
       fillRow(
         plotlyOutput(NS(id, "outPlot"), height = "550px"),
@@ -83,9 +74,14 @@ mob_measure_server <- function(id, language) {
     #            dim_ind = col_integer(),
     #            VALUE = col_double())) %>% 
       pivot_wider(id_cols=c(REF_DATE, dim_geo, dim_trade, dim_mode, dim_years, dim_type),
-                  names_from=dim_ind, values_from=VALUE, names_prefix = "ind") %>%
-      subset(!is.na(ind3)) %>% # remove if taxfilers is missing
+                  names_from=dim_ind, values_from=c(VALUE, STATUS)) %>%
       as.data.frame()
+    
+    last_years <- full %>%
+      subset(!is.na(VALUE_3),
+             select = c(REF_DATE, dim_years)) %>%
+      group_by(dim_years) %>%
+      summarize(last_year = max(REF_DATE))
     
     # time (year after certification)
     output$time_control <- renderUI({
@@ -104,16 +100,16 @@ mob_measure_server <- function(id, language) {
     last_yr <- reactive({
       req(input$time)
       
-      last_year <- full %>%
+      last_years %>%
         filter(dim_years == input$time) %>%
-        pull(REF_DATE) %>%
-        max()
+        pull(last_year)
     })
     
     # to make the cohort selection persistent even if input$time changed,
     # define it as a reactiveVal.
     # initialize it with the most recent available cohort.
-    selected_cohort <- reactiveVal(max(full$REF_DATE))
+    selected_cohort <- reactiveVal(
+      max(filter(full, !is.na(VALUE_3))$REF_DATE))
     
     # get the selected cohort value and update selected_cohort.
     get_cohort <- function() {
@@ -305,30 +301,30 @@ mob_measure_server <- function(id, language) {
       if (input$comp != 3) {
         tick_label <- if (input$comp == 1) {df()$label1} else {df()$label2}
         
-        net_text <- format_number(df()$ind11, locale = language())
-        in_text <- format_number(df()$ind9, locale = language())
-        out_text <- format_number(df()$ind10, locale = language())
+        net_text <- format_number(df()$VALUE_11, locale = language())
+        in_text <- format_number(df()$VALUE_9, locale = language())
+        out_text <- format_number(df()$VALUE_10, locale = language())
         
-        fig <- plot_ly(
-          x = df()$ind11, y = df()$supp, name = tr("net"), type = "bar",
-          text = net_text, orientation = "h", marker = list(color = '332288'),
-          hovertemplate = "%{y}: %{text}%",
-          source = "mm",
-          # when comparing across geography and Canada is selected, show
-          # In and Out and hide Net - always zero.
-          # otherwise, show Net only by default.
-          visible = ifelse(
-            (input$comp == 2 & input$geo == 1), "legendonly", TRUE)) %>%
-          add_trace(x = df()$ind9, name = tr("in"), type = "bar",
-                    text = in_text, marker = list(color = '117733'),
-                    visible = ifelse(
-                      (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
+        fig <- plot_ly(x = replace_na(df()$VALUE_9, 0), y = df()$supp,
+                       name = tr("in"), type = "bar", orientation = "h",
+                       text = in_text, marker = list(color = '117733'),
+                       hovertemplate = "%{y}: %{text}%", source = "mm",
+                       # when comparing across geography and Canada is selected, show
+                       # In and Out and hide Net - always zero.
+                       # otherwise, show Net only by default.
+                       visible = ifelse(
+                         (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>%
-          add_trace(x = df()$ind10, name = tr("out"), type = "bar",
+          add_trace(x = replace_na(df()$VALUE_10, 0), name = tr("out"),
                     text = out_text, marker = list(color = '882255'),
                     visible = ifelse(
                       (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
-          ) %>% 
+          ) %>%
+          add_trace(x = replace_na(df()$VALUE_11, 0), name = tr("net"),
+                    text = net_text, marker = list(color = '332288'),
+                    visible = ifelse(
+                      (input$comp == 2 & input$geo == 1), "legendonly", TRUE)
+          ) %>%
           layout(
             yaxis = list(
               ticktext = tick_label,
@@ -346,15 +342,15 @@ mob_measure_server <- function(id, language) {
         req(input$unit)
 
         if (input$unit == 1) {
-          net_measure <- df()$ind8
-          in_measure <- df()$ind6
-          out_measure <- df()$ind7
+          net_measure <- df()$VALUE_8
+          in_measure <- df()$VALUE_6
+          out_measure <- df()$VALUE_7
           
           hover_template <- "%{x}: %{text}"
         } else {
-          net_measure <- df()$ind11
-          in_measure <- df()$ind9
-          out_measure <- df()$ind10
+          net_measure <- df()$VALUE_11
+          in_measure <- df()$VALUE_9
+          out_measure <- df()$VALUE_10
           
           hover_template <- "%{x}: %{text} %"
         }
@@ -362,21 +358,20 @@ mob_measure_server <- function(id, language) {
         in_text <- format_number(in_measure, locale=language())
         out_text <- format_number(out_measure, locale=language())
 
-        fig <- plot_ly(
-          x = df()$supp, y = net_measure, name = tr("net"), type = "bar",
-          text = net_text, hovertemplate = hover_template, source = "mm",
-          marker = list(color = '332288'),
-          visible = ifelse(
-            (input$geo == 1), "legendonly", TRUE)
-          ) %>%
-          add_trace(y = in_measure, name = tr("in"), type = "bar",
-                    text = in_text, marker = list(color = '117733'),
-                    visible = ifelse(
+        fig <- 
+          plot_ly(x = df()$supp, y = replace_na(in_measure, 0), name = tr("in"),
+                  type = "bar", text = in_text, marker = list(color = '117733'),
+                  hovertemplate = hover_template, source = "mm",
+                  visible = ifelse(
                       (input$geo == 1), TRUE, "legendonly")) %>%
-          add_trace(y = out_measure, name = tr("out"), type = "bar",
+          add_trace(y = replace_na(out_measure, 0), name = tr("out"),
                     text = out_text, marker = list(color = '882255'),
                     visible = ifelse(
                       (input$geo == 1), TRUE, "legendonly")) %>%
+          add_trace(y = replace_na(net_measure, 0), name = tr("net"),
+                    text = net_text, marker = list(color = '332288'),
+                    visible = ifelse(
+                      (input$geo == 1), "legendonly", TRUE)) %>%
           layout(
             barmode = "group",
             legend=list(
@@ -433,60 +428,88 @@ mob_measure_server <- function(id, language) {
         icon = "toolbox")
     })
     
+    value_status <- function(value, status) {
+      if (is.na(value)) {
+        status
+      } else {
+        format_number(value, locale = language())
+      }
+    }
+    
+    value_status_two <- function(val1, stat1, val2, stat2, two_in_pct=TRUE) {
+      out1 <- value_status(val1, stat1)
+      if (is.na(val2)) {
+        out2 <- NULL
+      } else {
+        if (two_in_pct) {
+          endian <- " %)"
+        } else {
+          endian <- " )"
+        }
+        out2 <- paste0("(", value_status(val2, stat2), endian)  
+      }
+      
+      return(paste(out1, out2))
+    }
+    
     output$vbox_cohort <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind1[df()$supp == selected_supp()],
-          in_bracket = df()$ind3[df()$supp == selected_supp()],
-          in_bracket_percent = FALSE,
-          locale = language()),
+        value_status_two(
+          df()$VALUE_1[df()$supp == selected_supp()],
+          df()$STATUS_1[df()$supp == selected_supp()],
+          df()$VALUE_3[df()$supp == selected_supp()],
+          df()$STATUS_3[df()$supp == selected_supp()],
+          two_in_pct = FALSE),
         paste0(tr("cohort"), " (", tr("taxfilers"), ")"),
         icon = "users", size = "small")
     })
     
-    
     output$vbox_medage <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind2[df()$supp == selected_supp()],
-          locale = language()), tr("medage"),
-          icon = "award", size = "small")
+        value_status(
+          df()$VALUE_2[df()$supp == selected_supp()],
+          df()$STATUS_2[df()$supp == selected_supp()]),
+        tr("medage"), icon = "award", size = "small")
     })
     
     output$vbox_absence <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind4[df()$supp == selected_supp()],
-          in_bracket = df()$ind5[df()$supp == selected_supp()],
-          locale = language()), tr("absence"),
-        icon = "house-user", size = "small")
+        value_status_two(
+          df()$VALUE_4[df()$supp == selected_supp()],
+          df()$STATUS_4[df()$supp == selected_supp()],
+          df()$VALUE_5[df()$supp == selected_supp()],
+          df()$STATUS_5[df()$supp == selected_supp()]),
+        tr("absence"), icon = "house-user", size = "small")
     })
     
     output$vbox_net_measure <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind8[df()$supp == selected_supp()],
-          in_bracket = df()$ind11[df()$supp == selected_supp()],
-          locale = language()), tr("net"),
-          icon = "exchange-alt", size = "small")
+        value_status_two(
+          df()$VALUE_8[df()$supp == selected_supp()],
+          df()$STATUS_8[df()$supp == selected_supp()],
+          df()$VALUE_11[df()$supp == selected_supp()],
+          df()$STATUS_11[df()$supp == selected_supp()]),
+        tr("net"), icon = "exchange-alt", size = "small")
     })
     
     output$vbox_in_measure <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind6[df()$supp == selected_supp()],
-          in_bracket = df()$ind9[df()$supp == selected_supp()],
-          locale = language()), tr("in"),
-          icon = "sign-in-alt", size = "small")
+        value_status_two(
+          df()$VALUE_6[df()$supp == selected_supp()],
+          df()$STATUS_6[df()$supp == selected_supp()],
+          df()$VALUE_9[df()$supp == selected_supp()],
+          df()$STATUS_9[df()$supp == selected_supp()]),
+        tr("in"), icon = "sign-in-alt", size = "small")
     })
     
     output$vbox_out_measure <- renderValueBox({
       my_valueBox(
-        format_number(
-          df()$ind7[df()$supp == selected_supp()],
-          in_bracket = df()$ind10[df()$supp == selected_supp()],
-          locale = language()), tr("out"),
-          icon = "sign-out-alt", size = "small")
+        value_status_two(
+          df()$VALUE_7[df()$supp == selected_supp()],
+          df()$STATUS_7[df()$supp == selected_supp()],
+          df()$VALUE_10[df()$supp == selected_supp()],
+          df()$STATUS_10[df()$supp == selected_supp()]),
+        tr("out"), icon = "sign-out-alt", size = "small")
     })
     
   })
