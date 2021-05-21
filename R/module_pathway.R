@@ -388,17 +388,17 @@ pathway_server <- function(id, language) {
         tick_label <- if (input$direc == 1) {df()$label1} else {df()$label2}
         
         fig <- plot_ly(
-          x = df()$cert, y = df()$supp, name = tr("rate_cert"), type = "bar",
+          x = replace_na(df()$cert, 0), y = df()$supp, name = tr("rate_cert"), type = "bar",
           orientation = "h", marker = list(color = '332288'),
           text = paste0(cert_text, " % <sup>", df()$cert_flag, "</sup>"),
           source = "p",
           hovertemplate = "%{y}: %{text}") %>%
         add_trace(
-          x = df()$cont, name = tr("rate_cont"),
+          x = replace_na(df()$cont, 0), name = tr("rate_cont"),
           text = paste0(cont_text, " % <sup>", df()$cert_flag, "</sup>"),
           marker = list(color = '117733')) %>%
         add_trace(
-          x = df()$disc, name = tr("rate_disc"),
+          x = replace_na(df()$disc, 0), name = tr("rate_disc"),
           marker = list(color = '882255'),
           text = paste0(disc_text, " % <sup>", df()$disc_flag, "</sup>")) %>%
         layout(
@@ -414,16 +414,16 @@ pathway_server <- function(id, language) {
                     y=1.05, xanchor="left", x=0))
       } else { #comparing over time
         fig <- plot_ly(
-          x = df()$supp, y = df()$cert, name = tr("rate_cert"), type = "bar",
+          x = df()$supp, y = replace_na(df()$cert, 0), name = tr("rate_cert"), type = "bar",
           marker = list(color = '332288'),
           text = paste0(cert_text, " % <sup>", df()$cert_flag, "</sup>"),
           source = "p",
           hovertemplate = "%{x}:%{text}") %>%
           add_trace(
-            y = df()$cont, name = tr("rate_cont"), marker = list(color = '117733'),
+            y = replace_na(df()$cont, 0), name = tr("rate_cont"), marker = list(color = '117733'),
             text = paste0(cont_text, " % <sup>", df()$cert_flag, "</sup>")) %>%
           add_trace(
-            y = df()$disc, name = tr("rate_disc"), marker = list(color = '882255'),
+            y = replace_na(df()$disc, 0), name = tr("rate_disc"), marker = list(color = '882255'),
             text = paste0(disc_text, " % <sup>", df()$disc_flag, "</sup>")) %>%
           layout(
             barmode = 'stack',
