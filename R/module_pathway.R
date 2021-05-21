@@ -29,7 +29,7 @@ pathway_ui <- function(id) {
       
       # tableOutput(NS(id, "outtable")),
       fillRow(
-        plotlyOutput(NS(id, "outBarChart"), height = "550px"),
+        plotlyOutput(NS(id, "outBarChart"), height = "500px"),
         width = "100%"
       )
     )
@@ -62,21 +62,25 @@ pathway_server <- function(id, language) {
       })
 
     #  Data processing----------------------------------------------------------
-    dims <- c("sex", "trade", "ind")
-    # full <- download_data("37100193", dims) %>%
-    # to use pre-downloaded Rds file
-    full <- readRDS("data/pathway.Rds") %>%
-    # to use pre-downloaded csv file 
-    # full <- read_csv("data/pathway.csv",
-    #          col_types = cols_only(
-    #            REF_DATE = col_integer(),
-    #            dim_geo = col_integer(),
-    #            dim_sex = col_integer(),
-    #            dim_trade = col_integer(),
-    #            dim_ind = col_integer(),
-    #            VALUE = col_double(),
-    #            STATUS = col_character(),
-    #            SYMBOL = col_character())) %>% 
+    # load in the data file
+    # first, try to download the Rds file from GitHub
+    tmp <- tempfile()
+    resp <-
+      GET(
+        "https://github.com/parlerBinou/Shiny-RAIS-longitudinal/raw/main/data/pathway.Rds",
+        write_disk(tmp)
+      )
+    # check if the response was "successful" (200)
+    if (resp$status_code == 200) {
+      # then load the data from downloaded RDS file.
+      full <- readRDS(tmp)
+      unlink(tmp)
+    } else {
+      # if it was unsuccessful, use included data.
+      full <- readRDS("../data/pathway.Rds")
+    }
+    
+    full <- full %>%
     mutate(flag = paste(
       ifelse(is.na(STATUS) | STATUS == "..", " ", STATUS),
       ifelse(is.na(SYMBOL), " ", SYMBOL))) %>%
