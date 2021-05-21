@@ -3,13 +3,21 @@ library(plotly)
 library(tidyverse)
 library(shinydashboard)
 library(circlize)
-library(Cairo)
+#library(Cairo)
 library(shinyWidgets)
 options(shiny.usecairo=T)
 
 source("../R/module_pathway.R")
 source("../R/module_mobility_matrix.R")
 source("../R/module_mobility_measure.R")
+
+navbarPageWithButton <- function(..., button) {
+  navbar <- navbarPage(...)
+  div <- tags$div(class = "navbar-form", style = 'float: right; margin-top: 15px;', button)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], div)
+  navbar
+}
 
 navbarPageWithButton <- function(..., button) {
   navbar <- navbarPage(...)
@@ -57,8 +65,19 @@ ui <- bootstrapPage(
 
 server <- function(input, output, session) {
   
-  language <- reactiveVal("en") # default language
-  dictionary <- read.csv('../dictionary/dict_main.csv') %>%
+  language <- reactiveVal("en")
+  
+  output$other_lang <- renderText({
+    if (language() == "en") {"Français"} else {"English"}
+  })
+  
+  observeEvent(input$change_lang, {
+    if (language() == "en") {language("fr")} else {language("en")}
+  })
+  
+  # translator <- SimpleTranslator$new('dictionary/dict_main.csv', language)
+  # tr <- translator$tr
+  dictionary <- read.csv('dictionary/dict_main.csv') %>%
     split(.$key)
   
   # uses a reactiveVal language.
@@ -71,20 +90,10 @@ server <- function(input, output, session) {
   output$title_mob_measures <- renderText(tr("title_mob_measures"))
   output$title_mob_matrix <- renderText(tr("title_mob_matrix"))
   
-  output$other_lang <- renderText({
-    if (language() == "en") {"Français"} else {"English"}
-  })
-  
-  observeEvent(input$change_lang, {
-    if (language() == "en") {language("fr")} else {language("en")}
-  })
-  
   pathway_server("pathway", language)
-  
-  mob_measure_server("mob_measure", language)
-  
+  mob_measure_server("mob_measure", language)    
   mob_matrix_server("mob_matrix", language, reactive(input$innerSize))
-  
+
 }
 
 shinyApp(ui, server)

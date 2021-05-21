@@ -55,10 +55,15 @@ absence,Absence of mobility,Absence de mobilité
 in,In,Entrant
 out,Out,Sortant
 net,Net,Net
-text_no_data,Data is not available yet.,Les données ne sont pas encore disponibles.
+text_no_data,Data is not available. Please change the selection.,Les données ne sont pas disponibles. Veuillez modifier la sélection.
 lab_comp,Compare by,Comparer par
 mem_comp,Geography,Géographie
 mem_comp,Trades,Métiers
 mem_comp,Year of certification,Année d'obtention du certificat
 mem_unit,Number,Nombre
 mem_unit,Percentage,Pourcentage
+sAll_lbl,Select All,Sélectionnez tout
+dsAll_lbl,Deselect All,Désélectionner tout
+f_mesg,Data is too unreliable to be published,Les données sont trop peu fiable pour être publié
+text_no_trade,Select trades,Sélectionnez des métiers
+text_no_geo,Select regions,Sélectionnez des régions

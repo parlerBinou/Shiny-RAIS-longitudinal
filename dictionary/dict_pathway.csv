@@ -22,8 +22,8 @@ mem_geo,Alberta,Alberta
 mem_geo,British Columbia,Colombie-Britannique
 mem_geo,Territories,Territoires
 mem_trade_grp,All trades,Tous les métiers
-mem_trade_grp,All Red Seal trades,Tous les métiers Sceau Rouge
-mem_trade_grp,Selected Red Seal trades,Métiers Sceau Rouge sélectionnés
+mem_trade_grp,All Red Seal trades,Tous les métiers Sceau rouge
+mem_trade_grp,Selected Red Seal trades,Métiers Sceau rouge sélectionnés
 mem_trade_rs,Agricultural equipment technician,Mécanicien/mécanicienne de machinerie agricole
 mem_trade_rs,Automotive service technician,Mécanicien/mécanicienne de véhicules automobiles
 mem_trade_rs,Bricklayer,Briqueteur-maçon/briqueteuse-maçonne
@@ -49,15 +49,15 @@ mem_trade_rs,Sheet metal worker,Ferblantier/ferblantière
 mem_trade_rs,Steamfitter - pipefitter,Monteur/monteuse d'appareils de chauffage
 mem_trade_rs,Truck and transport mechanic,Mécanicien/mécanicienne de camions et transport
 mem_trade_rs,Welder,Soudeur/soudeuse
-mem_trade_grp,Other Red Seal trades,Autres métiers Sceau Rouge
+mem_trade_grp,Other Red Seal trades,Autres métiers Sceau rouge
 mem_trade_grp,All non-Red Seal trades,Tous les métiers non-Sceau rouge
 mem_trade_nrs,Child and youth worker,Assistant social/assistante sociale auprès des jeunes
 mem_trade_nrs,Developmental services worker,Travailleur/travailleuse de services de développement
 mem_trade_nrs,Early childhood educator,Éducateur/éducatrice de la petite enfance
 mem_trade_nrs,Educational assistant,Aide-enseignant/aide-enseignante
 mem_trade_nrs,Esthetician,Esthéticien/esthéticienne
-mem_trade_grp,Selected non-Red Seal trades,Métiers non-Sceau Rouge sélectionnés
-mem_trade_grp,Other non-Red Seal trades,Autres métiers non-Sceau Rouge
+mem_trade_grp,Selected non-Red Seal trades,Métiers non-Sceau rouge sélectionnés
+mem_trade_grp,Other non-Red Seal trades,Autres métiers non-Sceau rouge
 sex_mem,Both sexes,Les deux sexes
 sex_mem,Males,Hommes
 sex_mem,Females,Femmes
@@ -73,7 +73,12 @@ mem_comp,Year of registration,Année d'inscription
 mem_time,Within program duration,Au cours de la durée du programme
 mem_time,Within 1.5 times program duration,"Au cours d'une période équivalente à 1,5 fois la durée du programme"
 mem_time,Within 2 times program duration,Au cours d'une période équivalente à 2 fois la durée du programme
-mesg_val,Data is not available yet.,Les données ne sont pas encore disponibles.
+mesg_val,Data is not available. Please change the selection.,Les données ne sont pas disponibles. Veuillez modifier la sélection.
 age_cert,Median age at certification,Âge médian lors de l'obtention du certificat
 time_cert,Median time to certification,Délai médian d'obtention de la certification
 time_disc,Median time to discontinuation,Délai médian d'abandon
+sAll_lbl,Select All,Sélectionnez tout
+dsAll_lbl,Deselect All,Désélectionner tout
+f_mesg,Data is too unreliable to be published,Les données sont trop peu fiable pour être publié
+text_no_trade,Select trades,Sélectionnez des métiers
+text_no_geo,Select regions,Sélectionnez des régions

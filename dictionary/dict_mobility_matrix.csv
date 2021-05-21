@@ -6,6 +6,7 @@ lab_mode,Modes of certification,Modes de certification
 lab_year,Year(s) after certification,Année(s) suivant l'obtention du certificat
 lab_type,Types of mobility,Types de mobilité
 lab_ind,Mobility indicators,Indicateurs de mobilité
+lab_geo,Geography,Géographie
 mem_trade,All trades,Tous les métiers
 mem_trade,All Red Seal trades,Tous les métiers Sceau rouge
 mem_trade,Selected Red Seal trades,Métiers Sceau rouge sélectionnés
@@ -20,7 +21,6 @@ mem_type,Total mobility,Mobilité totale
 mem_type,Migrant population,Population migrante
 mem_type,Shadow population,Population transitoire
 lab_all_region,All regions,Toutes les régions
-mem_geo,Select a region, Sélectionnez une région
 mem_geo,Newfoundland and Labrador,Terre-Neuve-et-Labrador
 mem_geo,Prince Edward Island,Île-du-Prince-Édouard
 mem_geo,Nova Scotia,Nouvelle-Écosse
@@ -32,5 +32,8 @@ mem_geo,Saskatchewan,Saskatchewan
 mem_geo,Alberta,Alberta
 mem_geo,British Columbia,Colombie-Britannique
 mem_geo,Territories,Territoires
-text_no_data,Data is not available.,Les données ne sont pas disponibles.
+text_no_data,Data is not available. Please change the selection.,Les données ne sont pas disponibles. Veuillez modifier la sélection.
+text_select_all,Select all,Sélectionnez tout
+text_select_none,Deselect all,désélectionner tout
+text_when_none,Select a region,Sélectionnez une région
 
