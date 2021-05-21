@@ -308,22 +308,22 @@ mob_measure_server <- function(id, language) {
         fig <- plot_ly(x = replace_na(df()$VALUE_9, 0), y = df()$supp,
                        name = tr("in"), type = "bar", orientation = "h",
                        text = in_text, marker = list(color = '117733'),
-                       hovertemplate = "%{y}: %{text}%", source = "mm",
+                       hovertemplate = "%{y}: %{text}%", source = "mm"
                        # when comparing across geography and Canada is selected, show
                        # In and Out and hide Net - always zero.
                        # otherwise, show Net only by default.
-                       visible = ifelse(
-                         (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
+                       # visible = ifelse(
+                       #   (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>%
           add_trace(x = replace_na(df()$VALUE_10, 0), name = tr("out"),
-                    text = out_text, marker = list(color = '882255'),
-                    visible = ifelse(
-                      (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
+                    text = out_text, marker = list(color = '882255')
+                    # visible = ifelse(
+                    #   (input$comp == 2 & input$geo == 1), TRUE, "legendonly")
           ) %>%
           add_trace(x = replace_na(df()$VALUE_11, 0), name = tr("net"),
-                    text = net_text, marker = list(color = '332288'),
-                    visible = ifelse(
-                      (input$comp == 2 & input$geo == 1), "legendonly", TRUE)
+                    text = net_text, marker = list(color = '332288')
+                    # visible = ifelse(
+                    #   (input$comp == 2 & input$geo == 1), "legendonly", TRUE)
           ) %>%
           layout(
             yaxis = list(
@@ -361,17 +361,20 @@ mob_measure_server <- function(id, language) {
         fig <- 
           plot_ly(x = df()$supp, y = replace_na(in_measure, 0), name = tr("in"),
                   type = "bar", text = in_text, marker = list(color = '117733'),
-                  hovertemplate = hover_template, source = "mm",
-                  visible = ifelse(
-                      (input$geo == 1), TRUE, "legendonly")) %>%
+                  hovertemplate = hover_template, source = "mm"
+                  # visible = ifelse(
+                  #     (input$geo == 1), TRUE, "legendonly")
+                  ) %>%
           add_trace(y = replace_na(out_measure, 0), name = tr("out"),
-                    text = out_text, marker = list(color = '882255'),
-                    visible = ifelse(
-                      (input$geo == 1), TRUE, "legendonly")) %>%
+                    text = out_text, marker = list(color = '882255')
+                    # visible = ifelse(
+                    #   (input$geo == 1), TRUE, "legendonly")
+                    ) %>%
           add_trace(y = replace_na(net_measure, 0), name = tr("net"),
-                    text = net_text, marker = list(color = '332288'),
-                    visible = ifelse(
-                      (input$geo == 1), "legendonly", TRUE)) %>%
+                    text = net_text, marker = list(color = '332288')
+                    # visible = ifelse(
+                    #   (input$geo == 1), "legendonly", TRUE)
+                    ) %>%
           layout(
             barmode = "group",
             legend=list(
