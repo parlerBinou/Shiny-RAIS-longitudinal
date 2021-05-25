@@ -2,10 +2,11 @@
 
 ## Canadian apprenticeship longitudinal indicators
 
+https://shiny.covid.cloud.statcan.ca/rais_siai/en/
+
 - A data visualization tool to help understand trends and patterns in Canadian apprenticeship longitudinal indicators.
 - Interactive dashboards created in Shiny using data from Statistics Canada Tables [37-10-0193](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710019301), [37-10-0204](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710020501) and [37-10-0205](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710020501)
 - For concepts and definitions used, please see the [Reference Guide](https://www150.statcan.gc.ca/n1/en/catalogue/37200001).
-- You can download and run the app locally, or visit https://chaoyang-zheng.shinyapps.io/RAIS_SIAI_Longitudinal_en/ for a live demo - currently on testing.
 
 ### How to Contribute
 
@@ -21,10 +22,11 @@ ______________________
 
 ## Indicateurs longitudinaux des apprentis canadiens
 
+https://shiny.covid.cloud.statcan.ca/rais_siai/fr/
+
 - Un outil de visualisation des données pour aider à comprendre les tendances et les schémas de les indicateurs longitudinaux des apprentis canadiens.
 - Tableaux de bord interactifs créés en Shiny à partir des données des tableaux de Statistique Canada  [37-10-0193](https://www150.statcan.gc.ca/t1/tbl1/fr/tv.action?pid=3710019301), [37-10-0204](https://www150.statcan.gc.ca/t1/tbl1/fr/tv.action?pid=3710020501) et [37-10-0205](https://www150.statcan.gc.ca/t1/tbl1/fr/tv.action?pid=3710020501).
 - Pour les concepts et définitions utilisés, veuillez consulter le [guide de référence](https://www150.statcan.gc.ca/n1/fr/catalogue/37200001).
-- Vous pouvez télécharger et exécuter l'application localement, ou visiter https://chaoyang-zheng.shinyapps.io/RAIS_SIAI_Longitudinal_fr/ pour une démonstration en direct - actuellement en test.
 
 ### Comment contribuer
 
