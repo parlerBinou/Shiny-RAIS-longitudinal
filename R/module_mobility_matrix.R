@@ -36,7 +36,6 @@ mob_matrix_server <- function(id, language, innerSize) {
 
   moduleServer(id, function(input, output, session) {
     # load in the dictionary.
-    source("../R/download_data.R")
     dictionary <- read.csv('../dictionary/dict_mobility_matrix.csv') %>%
       split(.$key)
     
