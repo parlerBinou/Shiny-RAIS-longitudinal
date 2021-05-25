@@ -21,7 +21,7 @@ navbarPageWithButton <- function(..., button) {
 }
 
 ui <- bootstrapPage(
-  
+  title="Canadian apprenticeship longitudinal indicators",
   tags$head(
     tags$script(
       '$(document).on("shiny:connected", function(e) {

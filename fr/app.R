@@ -5,6 +5,7 @@ library(shinydashboard)
 library(circlize)
 library(Cairo)
 library(shinyWidgets)
+library(httr)
 options(shiny.usecairo=T)
 
 source("../R/module_pathway.R")
@@ -20,7 +21,7 @@ navbarPageWithButton <- function(..., button) {
 }
 
 ui <- bootstrapPage(
-  
+  title="Indicateurs longitudinaux des apprentis canadiens",
   tags$head(
     tags$script(
       '$(document).on("shiny:connected", function(e) {
